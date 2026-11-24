@@ -34,6 +34,7 @@ const translations = {
     ageConfirm: "Мне есть 18 лет",
     ageExit: "Выйти",
     itch: "Itch.io",
+    downloadTg: "Скачать в Telegram",
     ageLeft: "Доступ закрыт. Вы покинули каталог.",
     shareText: "смотри в Steamy Store",
     tag: "Тег",
@@ -70,6 +71,7 @@ const translations = {
     ageConfirm: "I am 18+",
     ageExit: "Exit",
     itch: "Itch.io",
+    downloadTg: "Download in Telegram",
     ageLeft: "Access denied. You have left the catalog.",
     shareText: "check it out in Steamy Store",
     tag: "Tag",
@@ -322,6 +324,15 @@ function App() {
     }
   }
 
+  const openTelegramFile = (game) => {
+    const url = 'https://t.me/SteamyFilesBot?start=game_' + game.id
+    if (window.Telegram?.WebApp?.openTelegramLink) {
+      window.Telegram.WebApp.openTelegramLink(url)
+    } else {
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   if (ageLeft) {
     return (
       <div className={`age-gate ${theme}`}>
@@ -522,6 +533,9 @@ function App() {
               )}
 
               <div className="modal-actions">
+                <button type="button" className="btn-primary" onClick={() => openTelegramFile(selectedGame)}>
+                  {t.downloadTg}
+                </button>
                 <button className="btn-primary" onClick={() => openDownload(selectedGame.downloadUrl)}>
                   {t.download}
                 </button>
