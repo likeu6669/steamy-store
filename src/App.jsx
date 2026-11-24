@@ -24,7 +24,10 @@ const translations = {
     any: "Любая",
     share: "Поделиться",
     copied: "Скопировано",
-    top: "Наверх"
+    top: "Наверх",
+    sortRating: "Рейтинг",
+    sortYear: "Год",
+    sortName: "Название"
   },
   en: {
     all: "All games",
@@ -47,7 +50,10 @@ const translations = {
     any: "Any",
     share: "Share",
     copied: "Copied",
-    top: "Top"
+    top: "Top",
+    sortRating: "Rating",
+    sortYear: "Year",
+    sortName: "Name"
   }
 }
 
@@ -129,9 +135,16 @@ function App() {
   }
 
   const shareGame = (game) => {
-    const text = `${game.title} — ${window.location.origin}`
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text)
+    const text = `${game.title} — смотри в Steamy Store`
+    const url = `https://t.me/SteamyStoreBot?startapp=game_${game.id}`
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.openTelegramLink(
+        `https://t.me/share/url?url=\( {encodeURIComponent(url)}&text= \){encodeURIComponent(text)}`
+      )
+    } else if (navigator.share) {
+      navigator.share({ title: game.title, text, url }).catch(() => {})
+    } else {
+      navigator.clipboard.writeText(url)
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     }
@@ -219,9 +232,9 @@ function App() {
             {t.filter} {showFilters ? '▲' : '▼'}
           </button>
           <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
-            <option value="rating">{t.sort}: Рейтинг</option>
-            <option value="year">{t.sort}: Год</option>
-            <option value="name">{t.sort}: Название</option>
+            <option value="rating">{t.sort}: {t.sortRating}</option>
+            <option value="year">{t.sort}: {t.sortYear}</option>
+            <option value="name">{t.sort}: {t.sortName}</option>
           </select>
         </div>
 
