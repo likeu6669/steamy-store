@@ -134,21 +134,21 @@ function App() {
     localStorage.setItem('steamy-tab', tab)
   }
 
-  const shareGame = (game) => {
-    const text = `${game.title} — смотри в Steamy Store`
-    const url = `https://t.me/SteamyStoreBot?startapp=game_${game.id}`
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.openTelegramLink(
-        `https://t.me/share/url?url=\( {encodeURIComponent(url)}&text= \){encodeURIComponent(text)}`
-      )
-    } else if (navigator.share) {
-      navigator.share({ title: game.title, text, url }).catch(() => {})
-    } else {
-      navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    }
+const shareGame = (game) => {
+  const text = `${game.title} — смотри в Steamy Store`
+  const url = `https://t.me/SteamyStoreBot?startapp=game_${game.id}`
+  const shareUrl = `https://t.me/share/url?url=\( {encodeURIComponent(url)}&text= \){encodeURIComponent(text)}`
+
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.openTelegramLink(shareUrl)
+  } else if (navigator.share) {
+    navigator.share({ title: game.title, text, url }).catch(() => {})
+  } else {
+    navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
   }
+}
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
