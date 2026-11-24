@@ -135,14 +135,12 @@ function App() {
   }
 
 const shareGame = (game) => {
-  const text = `${game.title} — смотри в Steamy Store`
-  const url = `https://t.me/SteamyStoreBot?startapp=game_${game.id}`
-  const shareUrl = `https://t.me/share/url?url=\( {encodeURIComponent(url)}&text= \){encodeURIComponent(text)}`
+  const text = game.title + " — смотри в Steamy Store"
+  const url = "https://t.me/SteamyStore_bot?startapp=game_" + game.id
 
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.openTelegramLink(shareUrl)
-  } else if (navigator.share) {
-    navigator.share({ title: game.title, text, url }).catch(() => {})
+  if (window.Telegram && window.Telegram.WebApp) {
+    const shareLink = "https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text)
+    window.Telegram.WebApp.openTelegramLink(shareLink)
   } else {
     navigator.clipboard.writeText(url)
     setCopied(true)
