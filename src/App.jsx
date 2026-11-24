@@ -9,6 +9,9 @@ const translations = {
     search: "Поиск игр, тегов, разработчиков...",
     empty: "Ничего не найдено",
     download: "Скачать / Купить",
+    downloadItch: "Скачать с itch.io",
+    downloadSteam: "Скачать со Steam",
+    supportDev: "Поддержать разработчика",
     addFav: "В избранное",
     inFav: "В избранном",
     screenshots: "Скриншоты",
@@ -46,6 +49,9 @@ const translations = {
     search: "Search games, tags, developers...",
     empty: "Nothing found",
     download: "Download / Buy",
+    downloadItch: "Download on itch.io",
+    downloadSteam: "Download on Steam",
+    supportDev: "Support the developer",
     addFav: "Add to favorites",
     inFav: "In favorites",
     screenshots: "Screenshots",
@@ -76,6 +82,16 @@ const translations = {
     shareText: "check it out in Steamy Store",
     tag: "Tag",
     close: "Close"
+  }
+}
+
+function isSteamStoreUrl(url) {
+  if (!url || !/^https:\/\//i.test(url)) return false
+  try {
+    const host = new URL(url).hostname.toLowerCase()
+    return host === 'store.steampowered.com' || host === 'www.store.steampowered.com'
+  } catch {
+    return false
   }
 }
 
@@ -536,12 +552,18 @@ function App() {
                 <button type="button" className="btn-primary" onClick={() => openTelegramFile(selectedGame)}>
                   {t.downloadTg}
                 </button>
-                <button className="btn-primary" onClick={() => openDownload(selectedGame.downloadUrl)}>
-                  {t.download}
-                </button>
-                {selectedGame.itchUrl && (
-                  <button className="btn-secondary" onClick={() => openDownload(selectedGame.itchUrl)}>
-                    {t.itch}
+                {selectedGame.itchUrl ? (
+                  <button type="button" className="btn-primary" onClick={() => openDownload(selectedGame.itchUrl)}>
+                    {t.downloadItch}
+                  </button>
+                ) : isSteamStoreUrl(selectedGame.downloadUrl) ? (
+                  <button type="button" className="btn-primary" onClick={() => openDownload(selectedGame.downloadUrl)}>
+                    {t.downloadSteam}
+                  </button>
+                ) : null}
+                {(selectedGame.patreonUrl || selectedGame.siteUrl) && (
+                  <button type="button" className="btn-secondary" onClick={() => openDownload(selectedGame.patreonUrl || selectedGame.siteUrl)}>
+                    {t.supportDev}
                   </button>
                 )}
                 <button className="btn-secondary" onClick={() => shareGame(selectedGame)}>
