@@ -2,6 +2,41 @@ import { useState, useEffect, useMemo } from 'react'
 import { games as initialGames } from './data/games.js'
 import './App.css'
 
+const translations = {
+  ru: {
+    all: "Все игры",
+    favorites: "Избранное",
+    search: "Поиск игр, тегов, разработчиков...",
+    empty: "Ничего не найдено",
+    download: "Скачать / Купить",
+    addFav: "В избранное",
+    inFav: "В избранном",
+    screenshots: "Скриншоты",
+    platforms: "Платформы",
+    animation: "Анимация",
+    yes: "Да",
+    no: "Нет",
+    russian: "Русский перевод",
+    clearFav: "Очистить избранное"
+  },
+  en: {
+    all: "All games",
+    favorites: "Favorites",
+    search: "Search games, tags, developers...",
+    empty: "Nothing found",
+    download: "Download / Buy",
+    addFav: "Add to favorites",
+    inFav: "In favorites",
+    screenshots: "Screenshots",
+    platforms: "Platforms",
+    animation: "Animation",
+    yes: "Yes",
+    no: "No",
+    russian: "Russian translation",
+    clearFav: "Clear favorites"
+  }
+}
+
 function App() {
   const [ageConfirmed, setAgeConfirmed] = useState(false)
   const [search, setSearch] = useState('')
@@ -9,6 +44,9 @@ function App() {
   const [favorites, setFavorites] = useState([])
   const [activeTab, setActiveTab] = useState('all')
   const [tgUser, setTgUser] = useState(null)
+  const [lang, setLang] = useState('ru')
+
+  const t = translations[lang]
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp
@@ -22,11 +60,14 @@ function App() {
       }
     }
 
-    const saved = localStorage.getItem('steamy-favorites')
-    if (saved) setFavorites(JSON.parse(saved))
+    const savedFav = localStorage.getItem('steamy-favorites-v2')
+    if (savedFav) setFavorites(JSON.parse(savedFav))
 
     const age = localStorage.getItem('steamy-age')
     if (age === 'yes') setAgeConfirmed(true)
+
+    const savedLang = localStorage.getItem('steamy-lang')
+    if (savedLang) setLang(savedLang)
   }, [])
 
   const toggleFavorite = (id) => {
@@ -34,14 +75,24 @@ function App() {
       const next = prev.includes(id)
         ? prev.filter(f => f !== id)
         : [...prev, id]
-      localStorage.setItem('steamy-favorites', JSON.stringify(next))
+      localStorage.setItem('steamy-favorites-v2', JSON.stringify(next))
       return next
     })
+  }
+
+  const clearFavorites = () => {
+    setFavorites([])
+    localStorage.setItem('steamy-favorites-v2', JSON.stringify([]))
   }
 
   const confirmAge = () => {
     localStorage.setItem('steamy-age', 'yes')
     setAgeConfirmed(true)
+  }
+
+  const changeLang = (newLang) => {
+    setLang(newLang)
+    localStorage.setItem('steamy-lang', newLang)
   }
 
   const filteredGames = useMemo(() => {
@@ -92,27 +143,36 @@ function App() {
       <header className="header">
         <div className="header-top">
           <div className="logo">🔥 Steamy Store</div>
-          {tgUser && <div className="user">@{tgUser.username || tgUser.first_name}</div>}
+          <div className="header-right">
+            <div className="lang-switch">
+              <button className={lang === 'ru' ? 'active' : ''} onClick={() => changeLang('ru')}>RU</button>
+              <button className={lang === 'en' ? 'active' : ''} onClick={() => changeLang('en')}>EN</button>
+            </div>
+            {tgUser && <div className="user">@{tgUser.username || tgUser.first_name}</div>}
+          </div>
         </div>
         <input
           className="search"
-          placeholder="Поиск игр, тегов, разработчиков..."
+          placeholder={t.search}
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         <div className="tabs">
           <button className={activeTab === 'all' ? 'active' : ''} onClick={() => setActiveTab('all')}>
-            Все игры ({initialGames.length})
+            {t.all} ({initialGames.length})
           </button>
           <button className={activeTab === 'favorites' ? 'active' : ''} onClick={() => setActiveTab('favorites')}>
-            Избранное ({favorites.length})
+            {t.favorites} ({favorites.length})
           </button>
+          {favorites.length > 0 && (
+            <button className="clear-btn" onClick={clearFavorites}>{t.clearFav}</button>
+          )}
         </div>
       </header>
 
       <main className="grid">
         {filteredGames.length === 0 ? (
-          <div className="empty">Ничего не найдено</div>
+          <div className="empty">{t.empty}</div>
         ) : (
           filteredGames.map(game => (
             <div key={game.id} className="card" onClick={() => setSelectedGame(game)}>
@@ -144,29 +204,42 @@ function App() {
             <div className="modal-body">
               <h2>{selectedGame.title}</h2>
               <div className="meta">{selectedGame.developer} · {selectedGame.year} · ⭐ {selectedGame.rating}</div>
+              
+              <div className="info-row">
+                <span>{t.platforms}: {selectedGame.platforms.join(', ')}</span>
+              </div>
+              <div className="info-row">
+                <span>{t.animation}: {selectedGame.hasAnimation ? t.yes : t.no}</span>
+              </div>
+              <div className="info-row">
+                <span>{t.russian}: {selectedGame.hasRussian ? t.yes : t.no}</span>
+              </div>
+
               <div className="tags">
                 {selectedGame.tags.map(t => <span key={t}>{t}</span>)}
               </div>
-              <p className="desc">{selectedGame.description}</p>
+              <p className="desc">{selectedGame.description[lang]}</p>
+
               {selectedGame.screenshots && selectedGame.screenshots.length > 0 && (
-  <div className="screenshots">
-    <div className="screenshots-title">Скриншоты</div>
-    <div className="screenshots-row">
-      {selectedGame.screenshots.map((src, i) => (
-        <img key={i} src={src} alt="" className="screenshot" />
-      ))}
-    </div>
-  </div>
-)}
+                <div className="screenshots">
+                  <div className="screenshots-title">{t.screenshots}</div>
+                  <div className="screenshots-row">
+                    {selectedGame.screenshots.map((src, i) => (
+                      <img key={i} src={src} alt="" className="screenshot" />
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="modal-actions">
                 <button className="btn-primary" onClick={() => openDownload(selectedGame.downloadUrl)}>
-                  Скачать / Купить
+                  {t.download}
                 </button>
                 <button
                   className={`btn-fav ${favorites.includes(selectedGame.id) ? 'active' : ''}`}
                   onClick={() => toggleFavorite(selectedGame.id)}
                 >
-                  {favorites.includes(selectedGame.id) ? 'В избранном' : 'В избранное'}
+                  {favorites.includes(selectedGame.id) ? t.inFav : t.addFav}
                 </button>
               </div>
             </div>
