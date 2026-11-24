@@ -101,12 +101,6 @@
   }
 }
 
-.user {
-  font-size: 13px;
-  color: #888;
-  white-space: nowrap;
-}
-
 .search {
   width: 100%;
   background: #1a1a1a;
@@ -674,7 +668,6 @@ input:focus-visible {
 .app.light .meta,
 .app.light .info-row,
 .app.light .screenshots-title,
-.app.light .user,
 .app.light .empty,
 .app.light .filter-row {
   color: #666;
