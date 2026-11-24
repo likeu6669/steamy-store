@@ -467,3 +467,29 @@
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.18); }
 }
+
+.app.light .tabs button,
+.app.light .filter-btn,
+.app.light .controls select,
+.app.light .filters,
+.app.light .clear-tag,
+.app.light .to-top,
+.app.light .age-card {
+  background: #f0f0f0;
+  color: #111;
+}
+
+.app.light .tabs button.active {
+  background: #ff2d55;
+  color: white;
+}
+
+.app.light .tags span {
+  background: #e0e0e0;
+  color: #111;
+}
+
+.app.light .search {
+  background: #f0f0f0;
+  color: #111;
+}
