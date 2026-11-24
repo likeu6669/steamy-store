@@ -148,6 +148,16 @@ function App() {
                 {selectedGame.tags.map(t => <span key={t}>{t}</span>)}
               </div>
               <p className="desc">{selectedGame.description}</p>
+              {selectedGame.screenshots && selectedGame.screenshots.length > 0 && (
+  <div className="screenshots">
+    <div className="screenshots-title">Скриншоты</div>
+    <div className="screenshots-row">
+      {selectedGame.screenshots.map((src, i) => (
+        <img key={i} src={src} alt="" className="screenshot" />
+      ))}
+    </div>
+  </div>
+)}
               <div className="modal-actions">
                 <button className="btn-primary" onClick={() => openDownload(selectedGame.downloadUrl)}>
                   Скачать / Купить
