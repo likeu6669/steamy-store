@@ -203,7 +203,7 @@ const shareGame = (game) => {
     return (
       <div className={`age-gate ${theme}`}>
         <div className="age-card animate-in">
-          <div className="logo">🔥 Steamy Store</div>
+          <div className="logo">Steamy Store</div>
           <h1>18+</h1>
           <p>Этот каталог содержит откровенный контент для взрослых.</p>
           <p>Подтверди, что тебе исполнилось 18 лет.</p>
