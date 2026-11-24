@@ -95,10 +95,36 @@ function isSteamStoreUrl(url) {
   }
 }
 
-function StoreLogo() {
+const CHANNEL_URL = 'https://t.me/steamystore'
+const LOGO_TAP_MS = 2000
+
+function StoreLogo({ theme }) {
+  const taps = useRef({ count: 0, last: 0 })
+  const src = theme === 'light' ? '/logo-lockup-light.webp' : '/logo-lockup-dark.webp'
+
+  const onLogoTap = () => {
+    const now = Date.now()
+    if (now - taps.current.last > LOGO_TAP_MS) taps.current.count = 0
+    taps.current.count += 1
+    taps.current.last = now
+
+    const tg = window.Telegram?.WebApp
+    try {
+      tg?.HapticFeedback?.impactOccurred?.(taps.current.count >= 5 ? 'medium' : 'light')
+    } catch {
+      /* haptic is optional */
+    }
+
+    if (taps.current.count >= 5) {
+      taps.current.count = 0
+      if (tg?.openTelegramLink) tg.openTelegramLink(CHANNEL_URL)
+      else window.open(CHANNEL_URL, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   return (
-    <div className="logo">
-      <img src="/logo-lockup.webp" alt="Steamy Store" className="logo-img" />
+    <div className="logo" onClick={onLogoTap}>
+      <img src={src} alt="Steamy Store" className="logo-img" draggable="false" />
     </div>
   )
 }
@@ -153,6 +179,9 @@ function App() {
       }
     }
 
+    const mq = window.matchMedia('(prefers-color-scheme: light)')
+    const applyPrefers = () => setTheme(mq.matches ? 'light' : 'dark')
+
     if (tg) {
       tg.ready()
       tg.expand()
@@ -163,6 +192,9 @@ function App() {
       tg.onEvent('themeChanged', applyTheme)
       tg.onEvent('viewportChanged', applyViewport)
     } else {
+      applyPrefers()
+      if (mq.addEventListener) mq.addEventListener('change', applyPrefers)
+      else mq.addListener(applyPrefers)
       openGameFromStartParam(new URLSearchParams(window.location.search).get('tgWebAppStartParam'))
     }
 
@@ -192,6 +224,10 @@ function App() {
       if (tg) {
         tg.offEvent('themeChanged', applyTheme)
         tg.offEvent('viewportChanged', applyViewport)
+      } else if (mq.removeEventListener) {
+        mq.removeEventListener('change', applyPrefers)
+      } else if (mq.removeListener) {
+        mq.removeListener(applyPrefers)
       }
     }
   }, [])
@@ -372,7 +408,7 @@ function App() {
     return (
       <div className={`age-gate ${theme}`}>
         <div className="age-card animate-in">
-          <StoreLogo />
+          <StoreLogo theme={theme} />
           <h1>{t.ageTitle}</h1>
           <p>{t.ageLeft}</p>
         </div>
@@ -384,7 +420,7 @@ function App() {
     return (
       <div className={`age-gate ${theme}`}>
         <div className="age-card animate-in">
-          <StoreLogo />
+          <StoreLogo theme={theme} />
           <h1>{t.ageTitle}</h1>
           <p>{t.ageText1}</p>
           <p>{t.ageText2}</p>
@@ -399,7 +435,7 @@ function App() {
     <div className={`app ${theme}`}>
       <header className="header">
         <div className="header-top">
-          <StoreLogo />
+          <StoreLogo theme={theme} />
           <div className="header-right">
             <div className="lang-switch">
               <button className={lang === 'ru' ? 'active' : ''} onClick={() => changeLang('ru')}>RU</button>

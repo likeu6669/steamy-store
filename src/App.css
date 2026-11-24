@@ -28,10 +28,15 @@
   display: flex;
   align-items: center;
   line-height: 0;
-  background: #15021f;
-  border-radius: 12px;
-  padding: 4px 10px 4px 6px;
-  overflow: hidden;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  cursor: default;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
   animation: logo-in 0.7s ease-out both, logo-glow 2.8s ease-in-out 0.7s infinite;
 }
 
@@ -41,6 +46,9 @@
   width: auto;
   max-width: min(220px, 58vw);
   transform-origin: center center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
   animation: logo-flicker 2.8s ease-in-out infinite;
 }
 
@@ -337,7 +345,7 @@
   justify-content: center;
   width: fit-content;
   margin: 0 auto 12px;
-  padding: 8px 14px 8px 10px;
+  padding: 0;
 }
 
 .age-card .logo-img {
@@ -550,12 +558,6 @@
 .app.light .modal-content {
   background: #ffffff;
   color: #111;
-}
-
-.app.light .logo,
-.age-gate.light .logo {
-  background: #15021f;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
 }
 
 .app.light .search,
