@@ -77,42 +77,41 @@ function App() {
 
   const t = translations[lang]
 
-useEffect(() => {
-  const tg = window.Telegram?.WebApp
-  if (tg) {
-    tg.ready()
-    tg.expand()
-    const colorScheme = tg.colorScheme || 'dark'
-    setTheme(colorScheme)
-    tg.setHeaderColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
-    tg.setBackgroundColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
-    if (tg.initDataUnsafe?.user) setTgUser(tg.initDataUnsafe.user)
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp
+    if (tg) {
+      tg.ready()
+      tg.expand()
+      const colorScheme = tg.colorScheme || 'dark'
+      setTheme(colorScheme)
+      tg.setHeaderColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
+      tg.setBackgroundColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
+      if (tg.initDataUnsafe?.user) setTgUser(tg.initDataUnsafe.user)
 
-    // Открываем игру, если пришли по ссылке
-    const startParam = tg.initDataUnsafe?.start_param
-    if (startParam && startParam.startsWith('game_')) {
-      const gameId = parseInt(startParam.replace('game_', ''))
-      const game = initialGames.find(g => g.id === gameId)
-      if (game) setSelectedGame(game)
+      const startParam = tg.initDataUnsafe?.start_param
+      if (startParam && startParam.startsWith('game_')) {
+        const gameId = parseInt(startParam.replace('game_', ''))
+        const game = initialGames.find(g => g.id === gameId)
+        if (game) setSelectedGame(game)
+      }
     }
-  }
 
-  const savedFav = localStorage.getItem('steamy-favorites-v2')
-  if (savedFav) setFavorites(JSON.parse(savedFav))
+    const savedFav = localStorage.getItem('steamy-favorites-v2')
+    if (savedFav) setFavorites(JSON.parse(savedFav))
 
-  const age = localStorage.getItem('steamy-age')
-  if (age === 'yes') setAgeConfirmed(true)
+    const age = localStorage.getItem('steamy-age')
+    if (age === 'yes') setAgeConfirmed(true)
 
-  const savedLang = localStorage.getItem('steamy-lang')
-  if (savedLang) setLang(savedLang)
+    const savedLang = localStorage.getItem('steamy-lang')
+    if (savedLang) setLang(savedLang)
 
-  const savedTab = localStorage.getItem('steamy-tab')
-  if (savedTab) setActiveTab(savedTab)
+    const savedTab = localStorage.getItem('steamy-tab')
+    if (savedTab) setActiveTab(savedTab)
 
-  const onScroll = () => setShowTop(window.scrollY > 400)
-  window.addEventListener('scroll', onScroll)
-  return () => window.removeEventListener('scroll', onScroll)
-}, [])
+    const onScroll = () => setShowTop(window.scrollY > 400)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const toggleFavorite = (id) => {
     setFavorites(prev => {
@@ -142,19 +141,19 @@ useEffect(() => {
     localStorage.setItem('steamy-tab', tab)
   }
 
-const shareGame = (game) => {
-  const text = game.title + " — смотри в Steamy Store"
-  const url = "https://t.me/SteamyStore_bot?startapp=game_" + game.id
+  const shareGame = (game) => {
+    const text = game.title + " — смотри в Steamy Store"
+    const url = "https://t.me/SteamyStore_bot?startapp=game_" + game.id
 
-  if (window.Telegram && window.Telegram.WebApp) {
-    const shareLink = "https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text)
-    window.Telegram.WebApp.openTelegramLink(shareLink)
-  } else {
-    navigator.clipboard.writeText(url)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    if (window.Telegram && window.Telegram.WebApp) {
+      const shareLink = "https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text)
+      window.Telegram.WebApp.openTelegramLink(shareLink)
+    } else {
+      navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    }
   }
-}
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
@@ -203,7 +202,7 @@ const shareGame = (game) => {
     return (
       <div className={`age-gate ${theme}`}>
         <div className="age-card animate-in">
-          <div className="logo">Steamy Store</div>
+          <div className="logo"><span className="fire">🔥</span> Steamy Store</div>
           <h1>18+</h1>
           <p>Этот каталог содержит откровенный контент для взрослых.</p>
           <p>Подтверди, что тебе исполнилось 18 лет.</p>
@@ -218,7 +217,7 @@ const shareGame = (game) => {
     <div className={`app ${theme}`}>
       <header className="header">
         <div className="header-top">
-          <div className="logo">Steamy Store</div>
+          <div className="logo"><span className="fire">🔥</span> Steamy Store</div>
           <div className="header-right">
             <div className="lang-switch">
               <button className={lang === 'ru' ? 'active' : ''} onClick={() => changeLang('ru')}>RU</button>
