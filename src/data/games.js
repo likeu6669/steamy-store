@@ -1,123 +1,92 @@
 export const games = [
   {
     id: 1,
-    title: "Succubus",
-    developer: "Madmind Studio",
-    year: 2021,
-    tags: ["Action", "Hack & Slash", "Demon"],
-    description: "Стильная экшен-игра с демоном-суккубом. Много крови, сексуальности и хардкорных боёв.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2l2s.jpg",
-    downloadUrl: "https://store.steampowered.com/app/1148590/Succubus/",
-    rating: 4.2
-  },
-  {
-    id: 2,
     title: "Subverse",
     developer: "Studio FOW",
     year: 2021,
-    tags: ["RPG", "Shooter", "Sci-Fi"],
-    description: "Космическая RPG-шутер с откровенными сценами и юмором. Классика жанра NSFW.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.jpg",
-    downloadUrl: "https://store.steampowered.com/app/750920/Subverse/",
-    rating: 4.5
+    platforms: ["PC"],
+    tags: ["Sci-Fi", "RPG", "Shooter", "3D", "Animated", "Harem", "NSFW"],
+    description: "Космическая RPG-шутер с откровенными анимированными сценами. Командуй кораблём и командой девушек.",
+    cover: "https://img.itch.zone/aW1nLzIwNjc4OTc0LnBuZw==/original/XwpHoS.png",
+    screenshots: [
+      "https://vexanstudio.com/wp-content/uploads/2025/04/subverse.webp",
+      "https://images.igdb.com/igdb/image/upload/t_cover_big/coctra.png",
+      "https://vgbase.net/steamimg/a/store_item_assets/steam/apps/1034140/header.jpg?t=1766161487"
+    ],
+    downloadUrl: "https://store.steampowered.com/app/1034140/Subverse/",
+    itchUrl: "https://rowen57.itch.io/subverse",
+    rating: 4.6
+  },
+  {
+    id: 2,
+    title: "Eternum",
+    developer: "Caribdis",
+    year: 2021,
+    platforms: ["PC", "Android", "Mac"],
+    tags: ["Visual Novel", "Mystery", "Romance", "3D", "Choices", "Harem", "NSFW"],
+    description: "Визуальная новелла с глубоким сюжетом, загадками и множеством романтических линий. Есть версии для ПК и Android.",
+    cover: "https://t.vndb.org/cv/83/85883.jpg",
+    screenshots: [
+      "https://slappyass.com/wp-content/uploads/2025/07/eternum.webp",
+      "https://i.redd.it/u74jo5xxccfc1.png",
+      "https://neoncritic.com/wp-content/uploads/2026/11/eternum-review-sci-fi-frame-production-ceiling-unfinished-campaign.webp"
+    ],
+    downloadUrl: "https://caribdis.itch.io/eternum",
+    itchUrl: "https://caribdis.itch.io/eternum",
+    rating: 4.9
   },
   {
     id: 3,
-    title: "House Party",
-    developer: "Eek! Games",
-    year: 2022,
-    tags: ["Adventure", "Simulation", "Adult"],
-    description: "Симулятор вечеринки с возможностью соблазнения персонажей. Много контента и модов.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2k8a.jpg",
-    downloadUrl: "https://store.steampowered.com/app/611790/House_Party/",
-    rating: 4.0
+    title: "My Dystopian Robot Girlfriend",
+    developer: "Incontinent Cell",
+    year: 2020,
+    platforms: ["PC", "Android", "Web"],
+    tags: ["Simulation", "Sci-Fi", "2D", "Customization", "Story", "NSFW"],
+    description: "Симулятор с роботом-девушкой в антиутопии. Много кастомизации, анимаций и сюжета.",
+    cover: "https://t.vndb.org/cv/72/57272.jpg",
+    screenshots: [
+      "https://t.vndb.org/cv/72/57272.jpg",
+      "https://pbs.twimg.com/media/GGP4QjBWcAAtvq1.jpg",
+      "https://pbs.twimg.com/media/GGP4RS1WkAAVxy3.png"
+    ],
+    downloadUrl: "https://incontinentcell.itch.io/factorial-omega",
+    itchUrl: "https://incontinentcell.itch.io/factorial-omega",
+    rating: 4.8
   },
   {
     id: 4,
-    title: "Being a DIK",
-    developer: "DrPinkCake",
-    year: 2020,
-    tags: ["Visual Novel", "Choices", "College"],
-    description: "Одна из самых популярных визуальных новелл с глубоким сюжетом и множеством романтических линий.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2j5p.jpg",
-    downloadUrl: "https://www.patreon.com/drpinkcake",
+    title: "Goddesses' Whim",
+    developer: "Ncrow",
+    year: 2023,
+    platforms: ["PC", "Android", "Mac"],
+    tags: ["Visual Novel", "Fantasy", "Harem", "3D", "Sandbox", "Dating Sim", "NSFW"],
+    description: "Фэнтезийная визуальная новелла с богинями, исследованием и откровенными сценами. Регулярные обновления.",
+    cover: "https://t.vndb.org/cv/57/115557.jpg",
+    screenshots: [
+      "https://t.vndb.org/cv/57/115557.jpg",
+      "https://pbs.twimg.com/media/HX0WZFuWEAA6949.jpg",
+      "https://pbs.twimg.com/media/HX0WZFsXYAAdC4Y.jpg"
+    ],
+    downloadUrl: "https://ncrow.itch.io/goddessess-whim",
+    itchUrl: "https://ncrow.itch.io/goddessess-whim",
     rating: 4.8
   },
   {
     id: 5,
-    title: "Summertime Saga",
-    developer: "DarkCookie",
-    year: 2016,
-    tags: ["Visual Novel", "Open World", "Adult"],
-    description: "Долгоживущая визуальная новелла в открытом мире. Много персонажей и событий.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1t4s.jpg",
-    downloadUrl: "https://www.patreon.com/darkcookie",
-    rating: 4.3
-  },
-  {
-    id: 6,
-    title: "Corruption of Champions II",
-    developer: "Fenoxo",
-    year: 2020,
-    tags: ["RPG", "Text", "Fantasy"],
-    description: "Текстовая RPG с огромным количеством фетишей и контента. Продолжение классики.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r8x.jpg",
-    downloadUrl: "https://www.fenoxo.com/",
-    rating: 4.4
-  },
-  {
-    id: 7,
-    title: "Degrees of Lewdity",
-    developer: "Vrelnir",
-    year: 2018,
-    tags: ["RPG", "Text", "Survival"],
-    description: "Очень откровенная текстовая RPG с элементами выживания и огромным количеством контента.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2abc.jpg",
-    downloadUrl: "https://vrelnir.blogspot.com/",
+    title: "Maeve's Academy",
+    developer: "Hatchet Games",
+    year: 2022,
+    platforms: ["PC", "Android", "Mac"],
+    tags: ["Visual Novel", "Fantasy", "School", "Romance", "2D", "Dating Sim", "NSFW"],
+    description: "Визуальная новелла в магической академии. Много романтики, персонажей и контента.",
+    cover: "https://cdn.milfygames.com/games/maeve-s-academy/d04c86b6-ee1d-48d9-89dd-9ea3b661da9c-full.webp",
+    screenshots: [
+      "https://neungames.com/wp-content/uploads/2026/07/maeves-academy.webp",
+      "https://media.rawg.io/media/resize/1280/-/screenshots/47c/47cd035afcfd481f631a1fe6f6dbb01e.jpg",
+      "https://cdn.milfygames.com/games/maeve-s-academy/d04c86b6-ee1d-48d9-89dd-9ea3b661da9c-full.webp"
+    ],
+    downloadUrl: "https://hatchet-games.itch.io/maeves-academy",
+    itchUrl: "https://hatchet-games.itch.io/maeves-academy",
     rating: 4.6
-  },
-  {
-    id: 8,
-    title: "Treasure of Nadia",
-    developer: "NLT Media",
-    year: 2020,
-    tags: ["Adventure", "Puzzle", "Adult"],
-    description: "Приключенческая игра с головоломками и откровенными сценами на тропическом острове.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2def.jpg",
-    downloadUrl: "https://www.patreon.com/nltmedia",
-    rating: 4.1
-  },
-  {
-    id: 9,
-    title: "Wild Life",
-    developer: "Adeptus Steve",
-    year: 2019,
-    tags: ["Sandbox", "Adult", "Open World"],
-    description: "Песочница в духе GTA с сильным упором на adult-контент.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2ghi.jpg",
-    downloadUrl: "https://www.patreon.com/adeptussteve",
-    rating: 3.9
-  },
-  {
-    id: 10,
-    title: "Carnal Instinct",
-    developer: "Team Carnal Instinct",
-    year: 2023,
-    tags: ["Survival", "Open World", "Adult"],
-    description: "Выживание в открытом мире с антропоморфными персонажами и adult-механиками.",
-    cover: "https://images.igdb.com/igdb/image/upload/t_cover_big/co2jkl.jpg",
-    downloadUrl: "https://store.steampowered.com/app/1462770/Carnal_Instinct/",
-    rating: 4.0
-  },
-  ...Array.from({ length: 20 }, (_, i) => ({
-    id: 11 + i,
-    title: `NSFW Game ${11 + i}`,
-    developer: "Indie Studio",
-    year: 2022 + (i % 4),
-    tags: ["Adult", "Visual Novel", i % 2 === 0 ? "RPG" : "Adventure"],
-    description: "Тестовая карточка игры для демонстрации каталога. Замените на реальные данные.",
-    cover: `https://picsum.photos/seed/steamy${11 + i}/400/600`,
-    downloadUrl: "https://example.com",
-    rating: 3.5 + (i % 15) / 10
-  }))
+  }
 ]
