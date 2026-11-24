@@ -7,6 +7,9 @@ const translations = {
     all: "Все игры",
     favorites: "Избранное",
     search: "Поиск игр, тегов, разработчиков...",
+    searchBtn: "Поиск",
+    allShort: "Все",
+    clearSearch: "Очистить",
     empty: "Ничего не найдено",
     downloadItch: "Скачать с itch.io",
     downloadSteam: "Скачать со Steam",
@@ -54,6 +57,9 @@ const translations = {
     all: "All games",
     favorites: "Favorites",
     search: "Search games, tags, developers...",
+    searchBtn: "Search",
+    allShort: "All",
+    clearSearch: "Clear",
     empty: "Nothing found",
     downloadItch: "Download on itch.io",
     downloadSteam: "Download on Steam",
@@ -220,12 +226,16 @@ function App() {
   const [filterAnimation, setFilterAnimation] = useState('any')
   const [filterRussian, setFilterRussian] = useState('any')
   const [activeTag, setActiveTag] = useState(null)
-  const [showFilters, setShowFilters] = useState(false)
+  const [openPanel, setOpenPanel] = useState(null)
+  const [headerCompact, setHeaderCompact] = useState(false)
   const [showTop, setShowTop] = useState(false)
   const [copied, setCopied] = useState(false)
   const [theme, setTheme] = useState('dark')
   const closeBtnRef = useRef(null)
   const copiedTimer = useRef(null)
+  const searchInputRef = useRef(null)
+  const toolbarRef = useRef(null)
+  const lastScrollY = useRef(0)
 
   const t = translations[lang] || translations.ru
 
@@ -316,6 +326,47 @@ function App() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [showRules])
+
+  useEffect(() => {
+    if (openPanel === 'search') {
+      const id = window.requestAnimationFrame(() => searchInputRef.current?.focus())
+      return () => window.cancelAnimationFrame(id)
+    }
+  }, [openPanel])
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY
+      const delta = y - lastScrollY.current
+      lastScrollY.current = y
+      if (openPanel || y < 24) {
+        setHeaderCompact(false)
+        return
+      }
+      if (delta > 8) setHeaderCompact(true)
+      else if (delta < -8) setHeaderCompact(false)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [openPanel])
+
+  useEffect(() => {
+    if (!openPanel) return
+    const onPointer = (e) => {
+      if (toolbarRef.current && !toolbarRef.current.contains(e.target)) {
+        setOpenPanel(null)
+      }
+    }
+    const onKey = (e) => {
+      if (e.key === 'Escape') setOpenPanel(null)
+    }
+    document.addEventListener('pointerdown', onPointer)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [openPanel])
 
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]')
@@ -414,6 +465,18 @@ function App() {
     setActiveTab(tab)
     writeStorage('steamy-tab', tab)
   }
+
+  const togglePanel = (panel) => {
+    setHeaderCompact(false)
+    setOpenPanel((prev) => (prev === panel ? null : panel))
+  }
+
+  const activeFilterCount =
+    [filterPlatform, filterAnimation, filterRussian].filter((v) => v !== 'any').length +
+    (activeTag ? 1 : 0)
+
+  const sortLabel = sortBy === 'year' ? t.sortYear : sortBy === 'name' ? t.sortName : t.sortRating
+  const searchActive = Boolean(search.trim())
 
   const shareGame = (game) => {
     const text = game.title + " — " + t.shareText
@@ -532,7 +595,7 @@ function App() {
 
   return (
     <div className={`app ${theme}`}>
-      <header className="header">
+      <header className={`header${headerCompact ? ' header-compact' : ''}`}>
         <div className="header-top">
           <StoreLogo theme={theme} />
           <div className="header-right">
@@ -543,70 +606,161 @@ function App() {
             </div>
           </div>
         </div>
-        <input
-          className="search"
-          type="search"
-          placeholder={t.search}
-          aria-label={t.search}
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <div className="controls">
-          <button className="filter-btn" onClick={() => setShowFilters(!showFilters)}>
-            {t.filter} {showFilters ? '▲' : '▼'}
-          </button>
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)} aria-label={t.sort}>
-            <option value="rating">{t.sort}: {t.sortRating}</option>
-            <option value="year">{t.sort}: {t.sortYear}</option>
-            <option value="name">{t.sort}: {t.sortName}</option>
-          </select>
-        </div>
 
-        {showFilters && (
-          <div className="filters animate-in">
-            <div className="filter-row">
-              <span>{t.platform}</span>
-              <select value={filterPlatform} onChange={e => setFilterPlatform(e.target.value)} aria-label={t.platform}>
-                <option value="any">{t.any}</option>
-                <option value="PC">PC</option>
-                <option value="Android">Android</option>
-                <option value="Mac">Mac</option>
-                <option value="Web">Web</option>
-              </select>
-            </div>
-            <div className="filter-row">
-              <span>{t.animation}</span>
-              <select value={filterAnimation} onChange={e => setFilterAnimation(e.target.value)} aria-label={t.animation}>
-                <option value="any">{t.any}</option>
-                <option value="yes">{t.yes}</option>
-                <option value="no">{t.no}</option>
-              </select>
-            </div>
-            <div className="filter-row">
-              <span>{t.russian}</span>
-              <select value={filterRussian} onChange={e => setFilterRussian(e.target.value)} aria-label={t.russian}>
-                <option value="any">{t.any}</option>
-                <option value="yes">{t.yes}</option>
-                <option value="no">{t.no}</option>
-              </select>
+        <div className="toolbar" ref={toolbarRef}>
+          <div className="toolbar-row">
+            <button
+              type="button"
+              className={`tool-btn${openPanel === 'search' || searchActive ? ' active' : ''}`}
+              aria-expanded={openPanel === 'search'}
+              aria-controls="search-panel"
+              onClick={() => togglePanel('search')}
+            >
+              <span className="tool-ico" aria-hidden="true">🔍</span>
+              <span className="tool-label">{t.searchBtn}</span>
+              {searchActive && <span className="tool-dot" aria-hidden="true" />}
+            </button>
+
+            <button
+              type="button"
+              className={`tool-btn${openPanel === 'filters' || activeFilterCount > 0 ? ' active' : ''}`}
+              aria-expanded={openPanel === 'filters'}
+              aria-controls="filters-panel"
+              onClick={() => togglePanel('filters')}
+            >
+              <span className="tool-label">{t.filter}</span>
+              {activeFilterCount > 0 && <span className="tool-badge">{activeFilterCount}</span>}
+            </button>
+
+            <button
+              type="button"
+              className={`tool-btn${openPanel === 'sort' ? ' active' : ''}`}
+              aria-expanded={openPanel === 'sort'}
+              aria-controls="sort-panel"
+              aria-label={`${t.sort}: ${sortLabel}`}
+              onClick={() => togglePanel('sort')}
+            >
+              <span className="tool-label">{sortLabel}</span>
+            </button>
+
+            <div className="tab-toggle" role="tablist" aria-label={t.all}>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'all'}
+                className={activeTab === 'all' ? 'active' : ''}
+                onClick={() => changeTab('all')}
+              >
+                {t.allShort} {initialGames.length}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'favorites'}
+                aria-label={`${t.favorites} ${favorites.length}`}
+                className={activeTab === 'favorites' ? 'active' : ''}
+                onClick={() => changeTab('favorites')}
+              >
+                ♥ {favorites.length}
+              </button>
             </div>
           </div>
-        )}
-        {activeTag && (
-          <button type="button" className="clear-tag" onClick={() => setActiveTag(null)}>
-            {t.tag}: {activeTag} ✕
-          </button>
-        )}
 
-        <div className="tabs">
-          <button className={activeTab === 'all' ? 'active' : ''} onClick={() => changeTab('all')}>
-            {t.all} ({initialGames.length})
-          </button>
-          <button className={activeTab === 'favorites' ? 'active' : ''} onClick={() => changeTab('favorites')}>
-            {t.favorites} ({favorites.length})
-          </button>
+          {openPanel === 'search' && (
+            <div className="toolbar-panel search-panel" id="search-panel">
+              <input
+                ref={searchInputRef}
+                className="search"
+                type="search"
+                placeholder={t.search}
+                aria-label={t.search}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {searchActive && (
+                <button
+                  type="button"
+                  className="search-clear"
+                  onClick={() => setSearch('')}
+                  aria-label={t.clearSearch}
+                >
+                  {t.clearSearch}
+                </button>
+              )}
+              <button
+                type="button"
+                className="search-close"
+                onClick={() => setOpenPanel(null)}
+                aria-label={t.close}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {openPanel === 'filters' && (
+            <div className="toolbar-panel filters animate-in" id="filters-panel">
+              <div className="filter-row">
+                <span>{t.platform}</span>
+                <select value={filterPlatform} onChange={(e) => setFilterPlatform(e.target.value)} aria-label={t.platform}>
+                  <option value="any">{t.any}</option>
+                  <option value="PC">PC</option>
+                  <option value="Android">Android</option>
+                  <option value="Mac">Mac</option>
+                  <option value="Web">Web</option>
+                </select>
+              </div>
+              <div className="filter-row">
+                <span>{t.animation}</span>
+                <select value={filterAnimation} onChange={(e) => setFilterAnimation(e.target.value)} aria-label={t.animation}>
+                  <option value="any">{t.any}</option>
+                  <option value="yes">{t.yes}</option>
+                  <option value="no">{t.no}</option>
+                </select>
+              </div>
+              <div className="filter-row">
+                <span>{t.russian}</span>
+                <select value={filterRussian} onChange={(e) => setFilterRussian(e.target.value)} aria-label={t.russian}>
+                  <option value="any">{t.any}</option>
+                  <option value="yes">{t.yes}</option>
+                  <option value="no">{t.no}</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {openPanel === 'sort' && (
+            <div className="toolbar-panel sort-panel animate-in" id="sort-panel" role="listbox" aria-label={t.sort}>
+              {[
+                ['rating', t.sortRating],
+                ['year', t.sortYear],
+                ['name', t.sortName],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="option"
+                  aria-selected={sortBy === value}
+                  className={`sort-option${sortBy === value ? ' active' : ''}`}
+                  onClick={() => {
+                    setSortBy(value)
+                    setOpenPanel(null)
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {activeTag && (
+            <button type="button" className="clear-tag" onClick={() => setActiveTag(null)}>
+              {t.tag}: {activeTag} ✕
+            </button>
+          )}
+
           {favorites.length > 0 && (
-            <button className="clear-btn" onClick={clearFavorites}>{t.clearFav}</button>
+            <button type="button" className="clear-btn toolbar-clear" onClick={clearFavorites}>{t.clearFav}</button>
           )}
         </div>
       </header>
