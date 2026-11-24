@@ -693,3 +693,139 @@ input:focus-visible {
   background: #e8e8e8;
   color: #111;
 }
+
+.age-card-rules {
+  max-width: 440px;
+  padding: 28px 24px 24px;
+  text-align: center;
+}
+
+.age-card .age-lang {
+  margin: 0 auto 8px;
+  width: fit-content;
+}
+
+.age-card-rules .rules-heading {
+  font-size: 40px;
+  margin: 4px 0 0;
+}
+
+.rules-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 4px 0 8px;
+}
+
+.rules-intro,
+.rules-agree {
+  color: #aaa;
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.rules-agree {
+  font-size: 13px;
+  color: #888;
+}
+
+.rules-list {
+  text-align: left;
+  margin: 8px 0 12px;
+  padding-left: 22px;
+  color: #ccc;
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.rules-list li {
+  margin: 8px 0;
+}
+
+.rules-contact {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #ff6b8a;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rules-link {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rules-link:hover,
+.rules-link:focus-visible {
+  color: #ff6b8a;
+  outline: none;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 20px 16px 8px;
+}
+
+.rules-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.rules-dialog {
+  position: relative;
+  margin: auto;
+  text-align: center;
+}
+
+.rules-dialog .close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.age-gate.light .rules-intro,
+.age-gate.light .rules-list,
+.rules-overlay.light .rules-intro,
+.rules-overlay.light .rules-list {
+  color: #333;
+}
+
+.age-gate.light .rules-agree,
+.rules-overlay.light .rules-agree {
+  color: #666;
+}
+
+.age-gate.light .lang-switch,
+.rules-overlay.light .lang-switch {
+  background: #f0f0f0;
+}
+
+.app.light .rules-link {
+  color: #666;
+}
+
+.app.light .rules-link:hover,
+.app.light .rules-link:focus-visible {
+  color: #ff2d55;
+}
+
+.age-gate {
+  overflow-y: auto;
+}
+
