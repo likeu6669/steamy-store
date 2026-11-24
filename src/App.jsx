@@ -197,17 +197,28 @@ function App() {
     if (meta) meta.setAttribute('content', theme === 'dark' ? '#0f0f0f' : '#ffffff')
   }, [theme])
 
+  const [lightboxIndex, setLightboxIndex] = useState(null)
   const modalOpen = Boolean(selectedGame) && ageConfirmed && !ageLeft
 
   useEffect(() => {
+    setLightboxIndex(null)
+  }, [selectedGame])
+
+  useEffect(() => {
     const tg = window.Telegram?.WebApp
-    const onBack = () => setSelectedGame(null)
-    const onKey = (e) => { if (e.key === 'Escape') setSelectedGame(null) }
+    const onBack = () => {
+      if (lightboxIndex != null) {
+        setLightboxIndex(null)
+        return
+      }
+      setSelectedGame(null)
+    }
+    const onKey = (e) => { if (e.key === 'Escape') onBack() }
 
     if (modalOpen) {
       document.body.style.overflow = 'hidden'
       window.addEventListener('keydown', onKey)
-      closeBtnRef.current?.focus()
+      if (lightboxIndex == null) closeBtnRef.current?.focus()
       if (tg?.BackButton) {
         tg.BackButton.show()
         tg.BackButton.onClick(onBack)
@@ -225,7 +236,7 @@ function App() {
         tg.BackButton.hide()
       }
     }
-  }, [modalOpen])
+  }, [modalOpen, lightboxIndex])
 
   useEffect(() => () => clearTimeout(copiedTimer.current), [])
 
@@ -542,7 +553,15 @@ function App() {
                   <div className="screenshots-title">{t.screenshots}</div>
                   <div className="screenshots-row">
                     {selectedGame.screenshots.map((src, i) => (
-                      <img key={src} src={src} alt={`${selectedGame.title} ${i + 1}`} className="screenshot" loading="lazy" onError={handleImageError} />
+                      <button
+                        type="button"
+                        key={src}
+                        className="screenshot-btn"
+                        onClick={() => setLightboxIndex(i)}
+                        aria-label={`${t.screenshots} ${i + 1}`}
+                      >
+                        <img src={src} alt={`${selectedGame.title} ${i + 1}`} className="screenshot" loading="lazy" onError={handleImageError} />
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -579,6 +598,23 @@ function App() {
             </div>
             <button type="button" className="close" ref={closeBtnRef} aria-label={t.close} onClick={() => setSelectedGame(null)}>✕</button>
           </div>
+        </div>
+      )}
+
+      {selectedGame && lightboxIndex != null && selectedGame.screenshots?.[lightboxIndex] && (
+        <div
+          className="lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.screenshots}
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button type="button" className="close lightbox-close" aria-label={t.close} onClick={() => setLightboxIndex(null)}>✕</button>
+          <img
+            src={selectedGame.screenshots[lightboxIndex]}
+            alt={`${selectedGame.title} ${lightboxIndex + 1}`}
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </div>

@@ -313,12 +313,45 @@
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.screenshot-btn {
+  border: none;
+  padding: 0;
+  background: none;
+  flex-shrink: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  scroll-snap-align: start;
 }
 .screenshot {
   height: 140px;
   border-radius: 10px;
   object-fit: cover;
-  flex-shrink: 0;
+  display: block;
+}
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  padding-top: calc(24px + env(safe-area-inset-top));
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.lightbox-close {
+  z-index: 201;
 }
 
 .header-right {
