@@ -8,7 +8,6 @@ const translations = {
     favorites: "Избранное",
     search: "Поиск игр, тегов, разработчиков...",
     empty: "Ничего не найдено",
-    download: "Скачать / Купить",
     downloadItch: "Скачать с itch.io",
     downloadSteam: "Скачать со Steam",
     supportDev: "Поддержать разработчика",
@@ -36,7 +35,6 @@ const translations = {
     ageText2: "Подтверди, что тебе исполнилось 18 лет.",
     ageConfirm: "Мне есть 18 лет",
     ageExit: "Выйти",
-    itch: "Itch.io",
     downloadTg: "Скачать в Telegram",
     ageLeft: "Доступ закрыт. Вы покинули каталог.",
     shareText: "смотри в Steamy Store",
@@ -48,7 +46,6 @@ const translations = {
     favorites: "Favorites",
     search: "Search games, tags, developers...",
     empty: "Nothing found",
-    download: "Download / Buy",
     downloadItch: "Download on itch.io",
     downloadSteam: "Download on Steam",
     supportDev: "Support the developer",
@@ -76,7 +73,6 @@ const translations = {
     ageText2: "Confirm that you are 18 years or older.",
     ageConfirm: "I am 18+",
     ageExit: "Exit",
-    itch: "Itch.io",
     downloadTg: "Download in Telegram",
     ageLeft: "Access denied. You have left the catalog.",
     shareText: "check it out in Steamy Store",
@@ -90,6 +86,30 @@ function isSteamStoreUrl(url) {
   try {
     const host = new URL(url).hostname.toLowerCase()
     return host === 'store.steampowered.com' || host === 'www.store.steampowered.com'
+  } catch {
+    return false
+  }
+}
+
+function isTelegramWebApp() {
+  const tg = window.Telegram?.WebApp
+  if (!tg) return false
+  if (tg.initData) return true
+  return Boolean(tg.platform && tg.platform !== 'unknown')
+}
+
+function readStorage(key) {
+  try {
+    return window.localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function writeStorage(key, value) {
+  try {
+    window.localStorage.setItem(key, value)
+    return true
   } catch {
     return false
   }
@@ -117,7 +137,7 @@ function StoreLogo({ theme }) {
 
     if (taps.current.count >= 5) {
       taps.current.count = 0
-      if (tg?.openTelegramLink) tg.openTelegramLink(CHANNEL_URL)
+      if (isTelegramWebApp() && tg?.openTelegramLink) tg.openTelegramLink(CHANNEL_URL)
       else window.open(CHANNEL_URL, '_blank', 'noopener,noreferrer')
     }
   }
@@ -166,6 +186,7 @@ function App() {
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp
+    const inTelegram = isTelegramWebApp()
     const applyTheme = () => {
       const colorScheme = tg.colorScheme || 'dark'
       setTheme(colorScheme)
@@ -182,7 +203,7 @@ function App() {
     const mq = window.matchMedia('(prefers-color-scheme: light)')
     const applyPrefers = () => setTheme(mq.matches ? 'light' : 'dark')
 
-    if (tg) {
+    if (inTelegram) {
       tg.ready()
       tg.expand()
       applyTheme()
@@ -198,7 +219,7 @@ function App() {
       openGameFromStartParam(new URLSearchParams(window.location.search).get('tgWebAppStartParam'))
     }
 
-    const savedFav = localStorage.getItem('steamy-favorites-v2')
+    const savedFav = readStorage('steamy-favorites-v2')
     if (savedFav) {
       try {
         const parsed = JSON.parse(savedFav)
@@ -208,20 +229,20 @@ function App() {
       }
     }
 
-    const age = localStorage.getItem('steamy-age')
+    const age = readStorage('steamy-age')
     if (age === 'yes') setAgeConfirmed(true)
 
-    const savedLang = localStorage.getItem('steamy-lang')
+    const savedLang = readStorage('steamy-lang')
     if (savedLang === 'ru' || savedLang === 'en') setLang(savedLang)
 
-    const savedTab = localStorage.getItem('steamy-tab')
+    const savedTab = readStorage('steamy-tab')
     if (savedTab === 'all' || savedTab === 'favorites') setActiveTab(savedTab)
 
     const onScroll = () => setShowTop(window.scrollY > 400)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       window.removeEventListener('scroll', onScroll)
-      if (tg) {
+      if (inTelegram) {
         tg.offEvent('themeChanged', applyTheme)
         tg.offEvent('viewportChanged', applyViewport)
       } else if (mq.removeEventListener) {
@@ -249,7 +270,8 @@ function App() {
   }, [selectedGame])
 
   useEffect(() => {
-    const tg = window.Telegram?.WebApp
+    const tg = isTelegramWebApp() ? window.Telegram.WebApp : null
+    const shots = selectedGame?.screenshots || []
     const onBack = () => {
       if (lightboxIndex != null) {
         setLightboxIndex(null)
@@ -257,7 +279,20 @@ function App() {
       }
       setSelectedGame(null)
     }
-    const onKey = (e) => { if (e.key === 'Escape') onBack() }
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        onBack()
+        return
+      }
+      if (lightboxIndex == null || shots.length === 0) return
+      if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        setLightboxIndex((i) => (i == null ? i : (i + 1) % shots.length))
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        setLightboxIndex((i) => (i == null ? i : (i - 1 + shots.length) % shots.length))
+      }
+    }
 
     if (modalOpen) {
       document.body.style.overflow = 'hidden'
@@ -280,30 +315,30 @@ function App() {
         tg.BackButton.hide()
       }
     }
-  }, [modalOpen, lightboxIndex])
+  }, [modalOpen, lightboxIndex, selectedGame])
 
   useEffect(() => () => clearTimeout(copiedTimer.current), [])
 
   const toggleFavorite = (id) => {
     setFavorites(prev => {
       const next = prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
-      localStorage.setItem('steamy-favorites-v2', JSON.stringify(next))
+      writeStorage('steamy-favorites-v2', JSON.stringify(next))
       return next
     })
   }
 
   const clearFavorites = () => {
     setFavorites([])
-    localStorage.setItem('steamy-favorites-v2', JSON.stringify([]))
+    writeStorage('steamy-favorites-v2', JSON.stringify([]))
   }
 
   const confirmAge = () => {
-    localStorage.setItem('steamy-age', 'yes')
+    writeStorage('steamy-age', 'yes')
     setAgeConfirmed(true)
   }
 
   const exitApp = () => {
-    if (window.Telegram?.WebApp) {
+    if (isTelegramWebApp()) {
       window.Telegram.WebApp.close()
     } else {
       setAgeLeft(true)
@@ -312,12 +347,12 @@ function App() {
 
   const changeLang = (newLang) => {
     setLang(newLang)
-    localStorage.setItem('steamy-lang', newLang)
+    writeStorage('steamy-lang', newLang)
   }
 
   const changeTab = (tab) => {
     setActiveTab(tab)
-    localStorage.setItem('steamy-tab', tab)
+    writeStorage('steamy-tab', tab)
   }
 
   const shareGame = (game) => {
@@ -330,7 +365,7 @@ function App() {
       copiedTimer.current = setTimeout(() => setCopied(false), 1500)
     }
 
-    if (window.Telegram && window.Telegram.WebApp) {
+    if (isTelegramWebApp()) {
       const shareLink = "https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text)
       window.Telegram.WebApp.openTelegramLink(shareLink)
     } else {
@@ -388,7 +423,7 @@ function App() {
 
   const openDownload = (url) => {
     if (!url || !/^https:\/\//i.test(url)) return
-    if (window.Telegram?.WebApp) {
+    if (isTelegramWebApp()) {
       window.Telegram.WebApp.openLink(url)
     } else {
       window.open(url, '_blank', 'noopener,noreferrer')
@@ -397,7 +432,7 @@ function App() {
 
   const openTelegramFile = (game) => {
     const url = 'https://t.me/SteamyFilesBot?start=game_' + game.id
-    if (window.Telegram?.WebApp?.openTelegramLink) {
+    if (isTelegramWebApp() && window.Telegram.WebApp.openTelegramLink) {
       window.Telegram.WebApp.openTelegramLink(url)
     } else {
       window.open(url, '_blank', 'noopener,noreferrer')
@@ -491,12 +526,12 @@ function App() {
                 <option value="no">{t.no}</option>
               </select>
             </div>
-            {activeTag && (
-              <button className="clear-tag" onClick={() => setActiveTag(null)}>
-                {t.tag}: {activeTag} ✕
-              </button>
-            )}
           </div>
+        )}
+        {activeTag && (
+          <button type="button" className="clear-tag" onClick={() => setActiveTag(null)}>
+            {t.tag}: {activeTag} ✕
+          </button>
         )}
 
         <div className="tabs">
