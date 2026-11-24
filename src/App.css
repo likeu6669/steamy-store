@@ -1,7 +1,10 @@
 .app {
   min-height: 100vh;
+  min-height: var(--tg-viewport-stable-height, 100vh);
   background: #0f0f0f;
-  padding-bottom: 40px;
+  padding-bottom: calc(40px + env(safe-area-inset-bottom));
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .header {
@@ -10,7 +13,7 @@
   z-index: 10;
   background: rgba(15, 15, 15, 0.92);
   backdrop-filter: blur(12px);
-  padding: 16px 16px 12px;
+  padding: calc(16px + env(safe-area-inset-top)) 16px 12px;
   border-bottom: 1px solid #222;
 }
 
@@ -52,6 +55,7 @@
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -74,7 +78,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 16px;
   padding: 16px;
 }
@@ -144,12 +148,16 @@
   gap: 4px;
 }
 
-.tags span {
+.tags span,
+.tags button {
   background: #2a2a2a;
   color: #ccc;
   font-size: 11px;
   padding: 2px 7px;
   border-radius: 6px;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 .empty {
@@ -254,10 +262,11 @@
 
 .age-gate {
   min-height: 100vh;
+  min-height: var(--tg-viewport-stable-height, 100vh);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: calc(20px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
   background: radial-gradient(circle at center, #1a0a12, #0f0f0f);
 }
 
@@ -355,8 +364,8 @@
 
 .close {
   position: fixed;
-  top: 12px;
-  right: 12px;
+  top: calc(12px + env(safe-area-inset-top));
+  right: calc(12px + env(safe-area-inset-right));
   z-index: 101;
   background: rgba(0,0,0,0.7);
   border: none;
@@ -419,8 +428,8 @@
 
 .to-top {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  right: calc(20px + env(safe-area-inset-right));
   background: #ff2d55;
   color: white;
   border: none;
@@ -462,6 +471,8 @@
 .fire {
   display: inline-block;
   animation: fire 0.8s ease-in-out infinite;
+  -webkit-text-fill-color: initial;
+  background: none;
 }
 
 @keyframes fire {
@@ -483,7 +494,8 @@
   color: white;
 }
 
-.app.light .tags span {
+.app.light .tags span,
+.app.light .tags button {
   background: #e0e0e0;
   color: #111;
 }
@@ -528,4 +540,36 @@
 
 .age-gate.light .age-card p {
   color: #555;
+}
+
+.app.light .header {
+  border-bottom-color: #e5e5e5;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.app.light .search {
+  border-color: #ddd;
+}
+
+.app.light .meta,
+.app.light .info-row,
+.app.light .screenshots-title,
+.app.light .user,
+.app.light .empty,
+.app.light .filter-row {
+  color: #666;
+}
+
+.app.light .desc {
+  color: #333;
+}
+
+.app.light .btn-secondary {
+  color: #444;
+  border-color: #ccc;
+}
+
+.app.light .btn-fav {
+  background: #e8e8e8;
+  color: #111;
 }
