@@ -455,17 +455,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  font-weight: 700;
 }
 
-.logo::before {
-  content: "🔥";
+.fire {
   display: inline-block;
-  animation: fire 1.2s ease-in-out infinite;
+  animation: fire 0.8s ease-in-out infinite;
 }
 
 @keyframes fire {
-  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
-  25% { transform: scale(1.08) rotate(-3deg); filter: brightness(1.2); }
-  50% { transform: scale(1.12) rotate(2deg); filter: brightness(1.4); }
-  75% { transform: scale(1.05) rotate(-1deg); filter: brightness(1.1); }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
 }
