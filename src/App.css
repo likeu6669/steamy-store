@@ -289,3 +289,24 @@
   width: 100%;
   margin-top: 12px;
 }
+
+.screenshots {
+  margin: 16px 0;
+}
+.screenshots-title {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 8px;
+}
+.screenshots-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.screenshot {
+  height: 140px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
