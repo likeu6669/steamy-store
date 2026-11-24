@@ -27,7 +27,13 @@ const translations = {
     top: "Наверх",
     sortRating: "Рейтинг",
     sortYear: "Год",
-    sortName: "Название"
+    sortName: "Название",
+    ageTitle: "18+",
+    ageText1: "Этот каталог содержит откровенный контент для взрослых.",
+    ageText2: "Подтверди, что тебе исполнилось 18 лет.",
+    ageConfirm: "Мне есть 18 лет",
+    ageExit: "Выйти",
+    itch: "Itch.io"
   },
   en: {
     all: "All games",
@@ -53,7 +59,13 @@ const translations = {
     top: "Top",
     sortRating: "Rating",
     sortYear: "Year",
-    sortName: "Name"
+    sortName: "Name",
+    ageTitle: "18+",
+    ageText1: "This catalog contains explicit adult content.",
+    ageText2: "Confirm that you are 18 years or older.",
+    ageConfirm: "I am 18+",
+    ageExit: "Exit",
+    itch: "Itch.io"
   }
 }
 
@@ -131,6 +143,14 @@ function App() {
     setAgeConfirmed(true)
   }
 
+  const exitApp = () => {
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.close()
+    } else {
+      window.location.href = 'about:blank'
+    }
+  }
+
   const changeLang = (newLang) => {
     setLang(newLang)
     localStorage.setItem('steamy-lang', newLang)
@@ -203,11 +223,11 @@ function App() {
       <div className={`age-gate ${theme}`}>
         <div className="age-card animate-in">
           <div className="logo"><span className="fire">🔥</span> Steamy Store</div>
-          <h1>18+</h1>
-          <p>Этот каталог содержит откровенный контент для взрослых.</p>
-          <p>Подтверди, что тебе исполнилось 18 лет.</p>
-          <button className="btn-primary" onClick={confirmAge}>Мне есть 18 лет</button>
-          <button className="btn-secondary" onClick={() => window.Telegram?.WebApp?.close()}>Выйти</button>
+          <h1>{t.ageTitle}</h1>
+          <p>{t.ageText1}</p>
+          <p>{t.ageText2}</p>
+          <button className="btn-primary" onClick={confirmAge}>{t.ageConfirm}</button>
+          <button className="btn-secondary" onClick={exitApp}>{t.ageExit}</button>
         </div>
       </div>
     )
@@ -252,6 +272,7 @@ function App() {
                 <option value="PC">PC</option>
                 <option value="Android">Android</option>
                 <option value="Mac">Mac</option>
+                <option value="Web">Web</option>
               </select>
             </div>
             <div className="filter-row">
@@ -367,6 +388,11 @@ function App() {
                 <button className="btn-primary" onClick={() => openDownload(selectedGame.downloadUrl)}>
                   {t.download}
                 </button>
+                {selectedGame.itchUrl && (
+                  <button className="btn-secondary" onClick={() => openDownload(selectedGame.itchUrl)}>
+                    {t.itch}
+                  </button>
+                )}
                 <button className="btn-secondary" onClick={() => shareGame(selectedGame)}>
                   {copied ? t.copied : t.share}
                 </button>
