@@ -93,7 +93,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .logo,
-  .logo-img {
+  .logo-img,
+  .animate-in {
     animation: none;
     filter: none;
     transform: none;
@@ -120,6 +121,18 @@
 
 .search:focus {
   border-color: #ff2d55;
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid #ff2d55;
+  outline-offset: 2px;
+}
+
+.search:focus-visible {
+  outline: 2px solid #ff2d55;
+  outline-offset: 2px;
 }
 
 .tabs {
@@ -540,13 +553,15 @@
 }
 
 .clear-tag {
+  display: inline-block;
   background: #ff2d55;
   color: white;
   border: none;
   border-radius: 8px;
   padding: 6px 10px;
-  margin-top: 8px;
+  margin: 0 0 10px;
   font-size: 13px;
+  cursor: pointer;
 }
 
 .to-top {
