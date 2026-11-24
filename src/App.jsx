@@ -218,7 +218,7 @@ const shareGame = (game) => {
     <div className={`app ${theme}`}>
       <header className="header">
         <div className="header-top">
-          <div className="logo">🔥 Steamy Store</div>
+          <div className="logo">Steamy Store</div>
           <div className="header-right">
             <div className="lang-switch">
               <button className={lang === 'ru' ? 'active' : ''} onClick={() => changeLang('ru')}>RU</button>
