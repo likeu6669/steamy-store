@@ -25,11 +25,20 @@
 }
 
 .logo {
-  font-size: 22px;
-  font-weight: 700;
-  background: linear-gradient(90deg, #ff2d55, #ff6b8a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  line-height: 0;
+  background: #15021f;
+  border-radius: 12px;
+  padding: 4px 10px 4px 6px;
+  overflow: hidden;
+}
+
+.logo-img {
+  display: block;
+  height: 48px;
+  width: auto;
+  max-width: min(220px, 58vw);
 }
 
 .user {
@@ -280,6 +289,18 @@
   border: 1px solid #333;
 }
 
+.age-card .logo {
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto 12px;
+  padding: 8px 14px 8px 10px;
+}
+
+.age-card .logo-img {
+  height: 64px;
+  max-width: min(280px, 100%);
+}
+
 .age-card h1 {
   font-size: 64px;
   margin: 10px 0;
@@ -487,6 +508,12 @@
   color: #111;
 }
 
+.app.light .logo,
+.age-gate.light .logo {
+  background: #15021f;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
+}
+
 .app.light .search,
 .app.light .filter-btn,
 .app.light .controls select {
@@ -494,24 +521,6 @@
   color: #111;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 700;
-}
-
-.fire {
-  display: inline-block;
-  animation: fire 0.8s ease-in-out infinite;
-  -webkit-text-fill-color: initial;
-  background: none;
-}
-
-@keyframes fire {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.18); }
-}
 
 .app.light .tabs button,
 .app.light .filter-btn,
