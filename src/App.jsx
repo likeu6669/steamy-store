@@ -77,34 +77,42 @@ function App() {
 
   const t = translations[lang]
 
-  useEffect(() => {
-    const tg = window.Telegram?.WebApp
-    if (tg) {
-      tg.ready()
-      tg.expand()
-      const colorScheme = tg.colorScheme || 'dark'
-      setTheme(colorScheme)
-      tg.setHeaderColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
-      tg.setBackgroundColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
-      if (tg.initDataUnsafe?.user) setTgUser(tg.initDataUnsafe.user)
+useEffect(() => {
+  const tg = window.Telegram?.WebApp
+  if (tg) {
+    tg.ready()
+    tg.expand()
+    const colorScheme = tg.colorScheme || 'dark'
+    setTheme(colorScheme)
+    tg.setHeaderColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
+    tg.setBackgroundColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
+    if (tg.initDataUnsafe?.user) setTgUser(tg.initDataUnsafe.user)
+
+    // Открываем игру, если пришли по ссылке
+    const startParam = tg.initDataUnsafe?.start_param
+    if (startParam && startParam.startsWith('game_')) {
+      const gameId = parseInt(startParam.replace('game_', ''))
+      const game = initialGames.find(g => g.id === gameId)
+      if (game) setSelectedGame(game)
     }
+  }
 
-    const savedFav = localStorage.getItem('steamy-favorites-v2')
-    if (savedFav) setFavorites(JSON.parse(savedFav))
+  const savedFav = localStorage.getItem('steamy-favorites-v2')
+  if (savedFav) setFavorites(JSON.parse(savedFav))
 
-    const age = localStorage.getItem('steamy-age')
-    if (age === 'yes') setAgeConfirmed(true)
+  const age = localStorage.getItem('steamy-age')
+  if (age === 'yes') setAgeConfirmed(true)
 
-    const savedLang = localStorage.getItem('steamy-lang')
-    if (savedLang) setLang(savedLang)
+  const savedLang = localStorage.getItem('steamy-lang')
+  if (savedLang) setLang(savedLang)
 
-    const savedTab = localStorage.getItem('steamy-tab')
-    if (savedTab) setActiveTab(savedTab)
+  const savedTab = localStorage.getItem('steamy-tab')
+  if (savedTab) setActiveTab(savedTab)
 
-    const onScroll = () => setShowTop(window.scrollY > 400)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const onScroll = () => setShowTop(window.scrollY > 400)
+  window.addEventListener('scroll', onScroll)
+  return () => window.removeEventListener('scroll', onScroll)
+}, [])
 
   const toggleFavorite = (id) => {
     setFavorites(prev => {
