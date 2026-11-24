@@ -33,13 +33,22 @@ const translations = {
     ageTitle: "18+",
     ageText1: "Этот каталог содержит откровенный контент для взрослых.",
     ageText2: "Подтверди, что тебе исполнилось 18 лет.",
-    ageConfirm: "Мне есть 18 лет",
+    ageConfirm: "Мне 18+, принимаю правила",
     ageExit: "Выйти",
     downloadTg: "Скачать в Telegram",
     ageLeft: "Доступ закрыт. Вы покинули каталог.",
     shareText: "смотри в Steamy Store",
     tag: "Тег",
-    close: "Закрыть"
+    close: "Закрыть",
+    rulesLink: "Правила",
+    rulesTitle: "Правила",
+    rulesIntro: "Перед тем как открыть каталог, подтвердите, что:",
+    rules1: "Вам исполнилось 18 лет. Здесь игры для взрослых с откровенным контентом.",
+    rules2: "Все игры принадлежат их разработчикам. Если игра понравилась, поддержите автора: кнопка есть в карточке игры.",
+    rules3: "Файлы предназначены только для личного использования. Перепродавать их или выдавать за свои запрещено.",
+    rules4: "Вы скачиваете и устанавливаете файлы на свой страх и риск.",
+    rules5: "Если вы правообладатель и хотите, чтобы игру убрали, напишите:",
+    rulesAgree: "Нажимая кнопку ниже, вы соглашаетесь с правилами."
   },
   en: {
     all: "All games",
@@ -71,13 +80,22 @@ const translations = {
     ageTitle: "18+",
     ageText1: "This catalog contains explicit adult content.",
     ageText2: "Confirm that you are 18 years or older.",
-    ageConfirm: "I am 18+",
+    ageConfirm: "I am 18+, I accept the rules",
     ageExit: "Exit",
     downloadTg: "Download in Telegram",
     ageLeft: "Access denied. You have left the catalog.",
     shareText: "check it out in Steamy Store",
     tag: "Tag",
-    close: "Close"
+    close: "Close",
+    rulesLink: "Rules",
+    rulesTitle: "Rules",
+    rulesIntro: "Before opening the catalog, please confirm that:",
+    rules1: "You are 18 or older. This catalog has adult games with explicit content.",
+    rules2: "All games belong to their developers. If you enjoyed a game, support the author: the button is on the game card.",
+    rules3: "Files are for personal use only. Reselling them or passing them off as your own is prohibited.",
+    rules4: "You download and install files at your own risk.",
+    rules5: "If you are a rights holder and want a game removed, write to:",
+    rulesAgree: "By tapping the button below, you agree to the rules."
   }
 }
 
@@ -116,6 +134,10 @@ function writeStorage(key, value) {
 }
 
 const CHANNEL_URL = 'https://t.me/steamystore'
+const RULES_CONTACT = '@rule6669'
+const RULES_STORAGE_KEY = 'rulesAccepted_v1'
+const RULES_CONTACT_URL = 'https://t.me/' + RULES_CONTACT.replace(/^@/, '')
+
 const LOGO_TAP_MS = 2000
 
 function StoreLogo({ theme }) {
@@ -149,6 +171,36 @@ function StoreLogo({ theme }) {
   )
 }
 
+
+function openContact() {
+  if (isTelegramWebApp() && window.Telegram?.WebApp?.openTelegramLink) {
+    window.Telegram.WebApp.openTelegramLink(RULES_CONTACT_URL)
+  } else {
+    window.open(RULES_CONTACT_URL, '_blank', 'noopener,noreferrer')
+  }
+}
+
+function RulesBlock({ t, showAgree }) {
+  return (
+    <>
+      <p className="rules-intro">{t.rulesIntro}</p>
+      <ol className="rules-list">
+        <li>{t.rules1}</li>
+        <li>{t.rules2}</li>
+        <li>{t.rules3}</li>
+        <li>{t.rules4}</li>
+        <li>
+          {t.rules5}{' '}
+          <button type="button" className="rules-contact" onClick={openContact}>
+            {RULES_CONTACT}
+          </button>
+        </li>
+      </ol>
+      {showAgree && <p className="rules-agree">{t.rulesAgree}</p>}
+    </>
+  )
+}
+
 function handleImageError(e) {
   e.currentTarget.onerror = null
   e.currentTarget.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600"><rect width="100%" height="100%" fill="#2a2a2a"/></svg>')
@@ -157,6 +209,7 @@ function handleImageError(e) {
 function App() {
   const [ageConfirmed, setAgeConfirmed] = useState(false)
   const [ageLeft, setAgeLeft] = useState(false)
+  const [showRules, setShowRules] = useState(false)
   const [search, setSearch] = useState('')
   const [selectedGame, setSelectedGame] = useState(null)
   const [favorites, setFavorites] = useState([])
@@ -229,8 +282,8 @@ function App() {
       }
     }
 
-    const age = readStorage('steamy-age')
-    if (age === 'yes') setAgeConfirmed(true)
+    const accepted = readStorage(RULES_STORAGE_KEY)
+    if (accepted === 'yes') setAgeConfirmed(true)
 
     const savedLang = readStorage('steamy-lang')
     if (savedLang === 'ru' || savedLang === 'en') setLang(savedLang)
@@ -256,6 +309,15 @@ function App() {
   useEffect(() => {
     document.documentElement.lang = lang
   }, [lang])
+
+  useEffect(() => {
+    if (!showRules) return
+    const onKey = (e) => {
+      if (e.key === 'Escape') setShowRules(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [showRules])
 
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]')
@@ -333,7 +395,7 @@ function App() {
   }
 
   const confirmAge = () => {
-    writeStorage('steamy-age', 'yes')
+    writeStorage(RULES_STORAGE_KEY, 'yes')
     setAgeConfirmed(true)
   }
 
@@ -454,13 +516,17 @@ function App() {
   if (!ageConfirmed) {
     return (
       <div className={`age-gate ${theme}`}>
-        <div className="age-card animate-in">
+        <div className="age-card age-card-rules animate-in">
           <StoreLogo theme={theme} />
-          <h1>{t.ageTitle}</h1>
-          <p>{t.ageText1}</p>
-          <p>{t.ageText2}</p>
-          <button className="btn-primary" onClick={confirmAge}>{t.ageConfirm}</button>
-          <button className="btn-secondary" onClick={exitApp}>{t.ageExit}</button>
+          <div className="lang-switch age-lang">
+            <button type="button" className={lang === 'ru' ? 'active' : ''} onClick={() => changeLang('ru')}>RU</button>
+            <button type="button" className={lang === 'en' ? 'active' : ''} onClick={() => changeLang('en')}>EN</button>
+          </div>
+          <h1 className="rules-heading">{t.ageTitle}</h1>
+          <h2 className="rules-title">{t.rulesTitle}</h2>
+          <RulesBlock t={t} showAgree />
+          <button type="button" className="btn-primary" onClick={confirmAge}>{t.ageConfirm}</button>
+          <button type="button" className="btn-secondary" onClick={exitApp}>{t.ageExit}</button>
         </div>
       </div>
     )
@@ -472,9 +538,10 @@ function App() {
         <div className="header-top">
           <StoreLogo theme={theme} />
           <div className="header-right">
+            <button type="button" className="rules-link" onClick={() => setShowRules(true)}>{t.rulesLink}</button>
             <div className="lang-switch">
-              <button className={lang === 'ru' ? 'active' : ''} onClick={() => changeLang('ru')}>RU</button>
-              <button className={lang === 'en' ? 'active' : ''} onClick={() => changeLang('en')}>EN</button>
+              <button type="button" className={lang === 'ru' ? 'active' : ''} onClick={() => changeLang('ru')}>RU</button>
+              <button type="button" className={lang === 'en' ? 'active' : ''} onClick={() => changeLang('en')}>EN</button>
             </div>
             {tgUser && <div className="user">@{tgUser.username || tgUser.first_name}</div>}
           </div>
@@ -694,6 +761,27 @@ function App() {
             alt={`${selectedGame.title} ${lightboxIndex + 1}`}
             onClick={(e) => e.stopPropagation()}
           />
+        </div>
+      )}
+
+      <footer className="app-footer">
+        <button type="button" className="rules-link" onClick={() => setShowRules(true)}>{t.rulesLink}</button>
+      </footer>
+
+      {showRules && (
+        <div
+          className={`rules-overlay ${theme}`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="rules-dialog-title"
+          onClick={() => setShowRules(false)}
+        >
+          <div className="age-card age-card-rules rules-dialog" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="close" aria-label={t.close} onClick={() => setShowRules(false)}>✕</button>
+            <h2 id="rules-dialog-title" className="rules-title">{t.rulesTitle}</h2>
+            <RulesBlock t={t} />
+            <button type="button" className="btn-primary" onClick={() => setShowRules(false)}>{t.close}</button>
+          </div>
         </div>
       )}
     </div>
