@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { games as initialGames } from './data/games.js'
 import './App.css'
 
@@ -36,7 +36,8 @@ const translations = {
     itch: "Itch.io",
     ageLeft: "Доступ закрыт. Вы покинули каталог.",
     shareText: "смотри в Steamy Store",
-    tag: "Тег"
+    tag: "Тег",
+    close: "Закрыть"
   },
   en: {
     all: "All games",
@@ -71,7 +72,8 @@ const translations = {
     itch: "Itch.io",
     ageLeft: "Access denied. You have left the catalog.",
     shareText: "check it out in Steamy Store",
-    tag: "Tag"
+    tag: "Tag",
+    close: "Close"
   }
 }
 
@@ -98,26 +100,44 @@ function App() {
   const [showTop, setShowTop] = useState(false)
   const [copied, setCopied] = useState(false)
   const [theme, setTheme] = useState('dark')
+  const closeBtnRef = useRef(null)
+  const copiedTimer = useRef(null)
 
-  const t = translations[lang]
+  const t = translations[lang] || translations.ru
+
+  const openGameFromStartParam = (param) => {
+    if (!param || !String(param).startsWith('game_')) return
+    const gameId = parseInt(String(param).replace('game_', ''), 10)
+    const game = initialGames.find(g => g.id === gameId)
+    if (game) setSelectedGame(game)
+  }
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp
+    const applyTheme = () => {
+      const colorScheme = tg.colorScheme || 'dark'
+      setTheme(colorScheme)
+      const bg = colorScheme === 'dark' ? '#0f0f0f' : '#ffffff'
+      tg.setHeaderColor(bg)
+      tg.setBackgroundColor(bg)
+    }
+    const applyViewport = () => {
+      if (tg.viewportStableHeight) {
+        document.documentElement.style.setProperty('--tg-viewport-stable-height', `${tg.viewportStableHeight}px`)
+      }
+    }
+
     if (tg) {
       tg.ready()
       tg.expand()
-      const colorScheme = tg.colorScheme || 'dark'
-      setTheme(colorScheme)
-      tg.setHeaderColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
-      tg.setBackgroundColor(colorScheme === 'dark' ? '#0f0f0f' : '#ffffff')
+      applyTheme()
+      applyViewport()
       if (tg.initDataUnsafe?.user) setTgUser(tg.initDataUnsafe.user)
-
-      const startParam = tg.initDataUnsafe?.start_param
-      if (startParam && startParam.startsWith('game_')) {
-        const gameId = parseInt(startParam.replace('game_', ''))
-        const game = initialGames.find(g => g.id === gameId)
-        if (game) setSelectedGame(game)
-      }
+      openGameFromStartParam(tg.initDataUnsafe?.start_param)
+      tg.onEvent('themeChanged', applyTheme)
+      tg.onEvent('viewportChanged', applyViewport)
+    } else {
+      openGameFromStartParam(new URLSearchParams(window.location.search).get('tgWebAppStartParam'))
     }
 
     const savedFav = localStorage.getItem('steamy-favorites-v2')
@@ -137,12 +157,59 @@ function App() {
     if (savedLang === 'ru' || savedLang === 'en') setLang(savedLang)
 
     const savedTab = localStorage.getItem('steamy-tab')
-    if (savedTab) setActiveTab(savedTab)
+    if (savedTab === 'all' || savedTab === 'favorites') setActiveTab(savedTab)
 
     const onScroll = () => setShowTop(window.scrollY > 400)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (tg) {
+        tg.offEvent('themeChanged', applyTheme)
+        tg.offEvent('viewportChanged', applyViewport)
+      }
+    }
   }, [])
+
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
+
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0f0f0f' : '#ffffff')
+  }, [theme])
+
+  const modalOpen = Boolean(selectedGame) && ageConfirmed && !ageLeft
+
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp
+    const onBack = () => setSelectedGame(null)
+    const onKey = (e) => { if (e.key === 'Escape') setSelectedGame(null) }
+
+    if (modalOpen) {
+      document.body.style.overflow = 'hidden'
+      window.addEventListener('keydown', onKey)
+      closeBtnRef.current?.focus()
+      if (tg?.BackButton) {
+        tg.BackButton.show()
+        tg.BackButton.onClick(onBack)
+      }
+    } else {
+      document.body.style.overflow = ''
+      tg?.BackButton?.hide()
+    }
+
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+      if (tg?.BackButton) {
+        if (typeof tg.BackButton.offClick === 'function') tg.BackButton.offClick(onBack)
+        tg.BackButton.hide()
+      }
+    }
+  }, [modalOpen])
+
+  useEffect(() => () => clearTimeout(copiedTimer.current), [])
 
   const toggleFavorite = (id) => {
     setFavorites(prev => {
@@ -186,7 +253,8 @@ function App() {
 
     const markCopied = () => {
       setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
+      clearTimeout(copiedTimer.current)
+      copiedTimer.current = setTimeout(() => setCopied(false), 1500)
     }
 
     if (window.Telegram && window.Telegram.WebApp) {
@@ -246,10 +314,11 @@ function App() {
   }, [search, activeTab, favorites, sortBy, filterPlatform, filterAnimation, filterRussian, activeTag])
 
   const openDownload = (url) => {
+    if (!url || !/^https:\/\//i.test(url)) return
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.openLink(url)
     } else {
-      window.open(url, '_blank')
+      window.open(url, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -295,7 +364,9 @@ function App() {
         </div>
         <input
           className="search"
+          type="search"
           placeholder={t.search}
+          aria-label={t.search}
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
@@ -303,7 +374,7 @@ function App() {
           <button className="filter-btn" onClick={() => setShowFilters(!showFilters)}>
             {t.filter} {showFilters ? '▲' : '▼'}
           </button>
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+          <select value={sortBy} onChange={e => setSortBy(e.target.value)} aria-label={t.sort}>
             <option value="rating">{t.sort}: {t.sortRating}</option>
             <option value="year">{t.sort}: {t.sortYear}</option>
             <option value="name">{t.sort}: {t.sortName}</option>
@@ -314,7 +385,7 @@ function App() {
           <div className="filters animate-in">
             <div className="filter-row">
               <span>{t.platform}</span>
-              <select value={filterPlatform} onChange={e => setFilterPlatform(e.target.value)}>
+              <select value={filterPlatform} onChange={e => setFilterPlatform(e.target.value)} aria-label={t.platform}>
                 <option value="any">{t.any}</option>
                 <option value="PC">PC</option>
                 <option value="Android">Android</option>
@@ -324,7 +395,7 @@ function App() {
             </div>
             <div className="filter-row">
               <span>{t.animation}</span>
-              <select value={filterAnimation} onChange={e => setFilterAnimation(e.target.value)}>
+              <select value={filterAnimation} onChange={e => setFilterAnimation(e.target.value)} aria-label={t.animation}>
                 <option value="any">{t.any}</option>
                 <option value="yes">{t.yes}</option>
                 <option value="no">{t.no}</option>
@@ -332,7 +403,7 @@ function App() {
             </div>
             <div className="filter-row">
               <span>{t.russian}</span>
-              <select value={filterRussian} onChange={e => setFilterRussian(e.target.value)}>
+              <select value={filterRussian} onChange={e => setFilterRussian(e.target.value)} aria-label={t.russian}>
                 <option value="any">{t.any}</option>
                 <option value="yes">{t.yes}</option>
                 <option value="no">{t.no}</option>
@@ -368,12 +439,23 @@ function App() {
               key={game.id}
               className="card animate-in"
               style={{ animationDelay: `${i * 0.05}s` }}
+              role="button"
+              tabIndex={0}
+              aria-label={game.title}
               onClick={() => setSelectedGame(game)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setSelectedGame(game)
+                }
+              }}
             >
               <div className="cover-wrap">
                 <img src={game.cover} alt={game.title} className="cover" loading="lazy" onError={handleImageError} />
                 <button
+                  type="button"
                   className={`fav-btn ${favorites.includes(game.id) ? 'active' : ''}`}
+                  aria-label={favorites.includes(game.id) ? t.inFav : t.addFav}
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(game.id) }}
                 >
                   {favorites.includes(game.id) ? '❤️' : '🤍'}
@@ -384,9 +466,13 @@ function App() {
                 <div className="meta">{game.year} · {game.developer}</div>
                 <div className="tags">
                   {game.tags.slice(0, 3).map(tag => (
-                    <span key={tag} onClick={(e) => { e.stopPropagation(); setActiveTag(tag); setShowFilters(true) }}>
+                    <button
+                      type="button"
+                      key={tag}
+                      onClick={(e) => { e.stopPropagation(); setActiveTag(tag); setShowFilters(true) }}
+                    >
                       {tag}
-                    </span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -396,13 +482,13 @@ function App() {
       </main>
 
       {showTop && (
-        <button className="to-top" onClick={scrollToTop}>{t.top}</button>
+        <button type="button" className="to-top" onClick={scrollToTop} aria-label={t.top}>{t.top}</button>
       )}
 
       {selectedGame && (
-        <div className="modal" onClick={() => setSelectedGame(null)}>
+        <div className="modal" role="dialog" aria-modal="true" aria-label={selectedGame.title} onClick={() => setSelectedGame(null)}>
           <div className="modal-content animate-in" onClick={e => e.stopPropagation()}>
-            <img src={selectedGame.cover} alt="" className="modal-cover" loading="lazy" onError={handleImageError} />
+            <img src={selectedGame.cover} alt={selectedGame.title} className="modal-cover" loading="lazy" onError={handleImageError} />
             <div className="modal-body">
               <h2>{selectedGame.title}</h2>
               <div className="meta">{selectedGame.developer} · {selectedGame.year} · ⭐ {selectedGame.rating}</div>
@@ -413,19 +499,23 @@ function App() {
 
               <div className="tags">
                 {selectedGame.tags.map(tag => (
-                  <span key={tag} onClick={() => { setActiveTag(tag); setSelectedGame(null); setShowFilters(true) }}>
+                  <button
+                    type="button"
+                    key={tag}
+                    onClick={() => { setActiveTag(tag); setSelectedGame(null); setShowFilters(true) }}
+                  >
                     {tag}
-                  </span>
+                  </button>
                 ))}
               </div>
-              <p className="desc">{selectedGame.description[lang]}</p>
+              <p className="desc">{selectedGame.description[lang] || selectedGame.description.ru}</p>
 
               {selectedGame.screenshots?.length > 0 && (
                 <div className="screenshots">
                   <div className="screenshots-title">{t.screenshots}</div>
                   <div className="screenshots-row">
                     {selectedGame.screenshots.map((src, i) => (
-                      <img key={i} src={src} alt="" className="screenshot" loading="lazy" onError={handleImageError} />
+                      <img key={src} src={src} alt={`${selectedGame.title} ${i + 1}`} className="screenshot" loading="lazy" onError={handleImageError} />
                     ))}
                   </div>
                 </div>
@@ -451,7 +541,7 @@ function App() {
                 </button>
               </div>
             </div>
-            <button className="close" onClick={() => setSelectedGame(null)}>✕</button>
+            <button type="button" className="close" ref={closeBtnRef} aria-label={t.close} onClick={() => setSelectedGame(null)}>✕</button>
           </div>
         </div>
       )}
