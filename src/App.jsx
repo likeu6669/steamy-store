@@ -95,6 +95,14 @@ function isSteamStoreUrl(url) {
   }
 }
 
+function StoreLogo() {
+  return (
+    <div className="logo">
+      <img src="/logo-lockup.webp" alt="Steamy Store" className="logo-img" />
+    </div>
+  )
+}
+
 function handleImageError(e) {
   e.currentTarget.onerror = null
   e.currentTarget.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600"><rect width="100%" height="100%" fill="#2a2a2a"/></svg>')
@@ -364,7 +372,7 @@ function App() {
     return (
       <div className={`age-gate ${theme}`}>
         <div className="age-card animate-in">
-          <div className="logo"><span className="fire">🔥</span> Steamy Store</div>
+          <StoreLogo />
           <h1>{t.ageTitle}</h1>
           <p>{t.ageLeft}</p>
         </div>
@@ -376,7 +384,7 @@ function App() {
     return (
       <div className={`age-gate ${theme}`}>
         <div className="age-card animate-in">
-          <div className="logo"><span className="fire">🔥</span> Steamy Store</div>
+          <StoreLogo />
           <h1>{t.ageTitle}</h1>
           <p>{t.ageText1}</p>
           <p>{t.ageText2}</p>
@@ -391,7 +399,7 @@ function App() {
     <div className={`app ${theme}`}>
       <header className="header">
         <div className="header-top">
-          <div className="logo"><span className="fire">🔥</span> Steamy Store</div>
+          <StoreLogo />
           <div className="header-right">
             <div className="lang-switch">
               <button className={lang === 'ru' ? 'active' : ''} onClick={() => changeLang('ru')}>RU</button>
