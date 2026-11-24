@@ -18,7 +18,6 @@ export const games = [
       "https://images.igdb.com/igdb/image/upload/t_cover_big/coctra.png"
     ],
     downloadUrl: "https://store.steampowered.com/app/1034140/Subverse/",
-    itchUrl: "https://rowen57.itch.io/subverse",
     rating: 4.6
   },
   {
@@ -41,6 +40,7 @@ export const games = [
     ],
     downloadUrl: "https://caribdis.itch.io/eternum",
     itchUrl: "https://caribdis.itch.io/eternum",
+    patreonUrl: "https://www.patreon.com/onceinalifetime",
     rating: 4.9
   },
   {
@@ -62,6 +62,7 @@ export const games = [
     ],
     downloadUrl: "https://incontinentcell.itch.io/factorial-omega",
     itchUrl: "https://incontinentcell.itch.io/factorial-omega",
+    patreonUrl: "https://www.patreon.com/inccel",
     rating: 4.8
   },
   {
@@ -83,6 +84,7 @@ export const games = [
     ],
     downloadUrl: "https://ncrow.itch.io/goddessess-whim",
     itchUrl: "https://ncrow.itch.io/goddessess-whim",
+    patreonUrl: "https://www.patreon.com/NCroww",
     rating: 4.8
   },
   {
@@ -104,6 +106,7 @@ export const games = [
     ],
     downloadUrl: "https://hatchet-games.itch.io/maeves-academy",
     itchUrl: "https://hatchet-games.itch.io/maeves-academy",
+    patreonUrl: "https://www.patreon.com/hatchetgames",
     rating: 4.6
   }
 ]

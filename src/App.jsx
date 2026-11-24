@@ -9,6 +9,8 @@ const translations = {
     search: "Поиск игр, тегов, разработчиков...",
     empty: "Ничего не найдено",
     download: "Скачать / Купить",
+    downloadItch: "Скачать с itch.io",
+    supportDev: "Поддержать разработчика",
     addFav: "В избранное",
     inFav: "В избранном",
     screenshots: "Скриншоты",
@@ -46,6 +48,8 @@ const translations = {
     search: "Search games, tags, developers...",
     empty: "Nothing found",
     download: "Download / Buy",
+    downloadItch: "Download on itch.io",
+    supportDev: "Support the developer",
     addFav: "Add to favorites",
     inFav: "In favorites",
     screenshots: "Screenshots",
@@ -536,12 +540,14 @@ function App() {
                 <button type="button" className="btn-primary" onClick={() => openTelegramFile(selectedGame)}>
                   {t.downloadTg}
                 </button>
-                <button className="btn-primary" onClick={() => openDownload(selectedGame.downloadUrl)}>
-                  {t.download}
-                </button>
                 {selectedGame.itchUrl && (
-                  <button className="btn-secondary" onClick={() => openDownload(selectedGame.itchUrl)}>
-                    {t.itch}
+                  <button type="button" className="btn-primary" onClick={() => openDownload(selectedGame.itchUrl)}>
+                    {t.downloadItch}
+                  </button>
+                )}
+                {selectedGame.patreonUrl && (
+                  <button type="button" className="btn-secondary" onClick={() => openDownload(selectedGame.patreonUrl)}>
+                    {t.supportDev}
                   </button>
                 )}
                 <button className="btn-secondary" onClick={() => shareGame(selectedGame)}>
