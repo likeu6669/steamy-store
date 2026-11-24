@@ -18,6 +18,7 @@ export const games = [
       "https://images.igdb.com/igdb/image/upload/t_cover_big/coctra.png"
     ],
     downloadUrl: "https://store.steampowered.com/app/1034140/Subverse/",
+    siteUrl: "https://www.studiofow.com/subverse",
     rating: 4.6
   },
   {
