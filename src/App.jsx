@@ -134,9 +134,9 @@ function writeStorage(key, value) {
 }
 
 const CHANNEL_URL = 'https://t.me/steamystore'
-const RULES_CONTACT = '@rule6669'
+const RULES_CONTACT = '@SteamySupportBot'
 const RULES_STORAGE_KEY = 'rulesAccepted_v1'
-const RULES_CONTACT_URL = 'https://t.me/' + RULES_CONTACT.replace(/^@/, '')
+const RULES_CONTACT_URL = 'https://t.me/SteamySupportBot'
 
 const LOGO_TAP_MS = 2000
 
@@ -214,7 +214,6 @@ function App() {
   const [selectedGame, setSelectedGame] = useState(null)
   const [favorites, setFavorites] = useState([])
   const [activeTab, setActiveTab] = useState('all')
-  const [tgUser, setTgUser] = useState(null)
   const [lang, setLang] = useState('ru')
   const [sortBy, setSortBy] = useState('rating')
   const [filterPlatform, setFilterPlatform] = useState('any')
@@ -261,7 +260,6 @@ function App() {
       tg.expand()
       applyTheme()
       applyViewport()
-      if (tg.initDataUnsafe?.user) setTgUser(tg.initDataUnsafe.user)
       openGameFromStartParam(tg.initDataUnsafe?.start_param)
       tg.onEvent('themeChanged', applyTheme)
       tg.onEvent('viewportChanged', applyViewport)
@@ -543,7 +541,6 @@ function App() {
               <button type="button" className={lang === 'ru' ? 'active' : ''} onClick={() => changeLang('ru')}>RU</button>
               <button type="button" className={lang === 'en' ? 'active' : ''} onClick={() => changeLang('en')}>EN</button>
             </div>
-            {tgUser && <div className="user">@{tgUser.username || tgUser.first_name}</div>}
           </div>
         </div>
         <input
