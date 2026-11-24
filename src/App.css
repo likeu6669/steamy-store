@@ -203,12 +203,13 @@
 
 .modal-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 20px;
 }
 
 .btn-primary, .btn-fav, .btn-secondary {
-  flex: 1;
+  flex: 1 1 140px;
   padding: 14px;
   border: none;
   border-radius: 12px;
@@ -472,9 +473,7 @@
 .app.light .filter-btn,
 .app.light .controls select,
 .app.light .filters,
-.app.light .clear-tag,
-.app.light .to-top,
-.app.light .age-card {
+.app.light .clear-tag {
   background: #f0f0f0;
   color: #111;
 }
@@ -492,4 +491,41 @@
 .app.light .search {
   background: #f0f0f0;
   color: #111;
+}
+
+.app.light .lang-switch {
+  background: #f0f0f0;
+}
+
+.app.light .lang-switch button {
+  color: #555;
+}
+
+.app.light .lang-switch button.active {
+  background: #ff2d55;
+  color: white;
+}
+
+.app.light .clear-btn {
+  background: #f0f0f0 !important;
+  color: #ff2d55 !important;
+}
+
+.app.light .to-top {
+  background: #ff2d55;
+  color: white;
+}
+
+.age-gate.light {
+  background: radial-gradient(circle at center, #f5e6ea, #f5f5f5);
+}
+
+.age-gate.light .age-card {
+  background: #ffffff;
+  color: #111;
+  border-color: #ddd;
+}
+
+.age-gate.light .age-card p {
+  color: #555;
 }

@@ -33,7 +33,10 @@ const translations = {
     ageText2: "Подтверди, что тебе исполнилось 18 лет.",
     ageConfirm: "Мне есть 18 лет",
     ageExit: "Выйти",
-    itch: "Itch.io"
+    itch: "Itch.io",
+    ageLeft: "Доступ закрыт. Вы покинули каталог.",
+    shareText: "смотри в Steamy Store",
+    tag: "Тег"
   },
   en: {
     all: "All games",
@@ -65,12 +68,21 @@ const translations = {
     ageText2: "Confirm that you are 18 years or older.",
     ageConfirm: "I am 18+",
     ageExit: "Exit",
-    itch: "Itch.io"
+    itch: "Itch.io",
+    ageLeft: "Access denied. You have left the catalog.",
+    shareText: "check it out in Steamy Store",
+    tag: "Tag"
   }
+}
+
+function handleImageError(e) {
+  e.currentTarget.onerror = null
+  e.currentTarget.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600"><rect width="100%" height="100%" fill="#2a2a2a"/></svg>')
 }
 
 function App() {
   const [ageConfirmed, setAgeConfirmed] = useState(false)
+  const [ageLeft, setAgeLeft] = useState(false)
   const [search, setSearch] = useState('')
   const [selectedGame, setSelectedGame] = useState(null)
   const [favorites, setFavorites] = useState([])
@@ -109,13 +121,20 @@ function App() {
     }
 
     const savedFav = localStorage.getItem('steamy-favorites-v2')
-    if (savedFav) setFavorites(JSON.parse(savedFav))
+    if (savedFav) {
+      try {
+        const parsed = JSON.parse(savedFav)
+        setFavorites(Array.isArray(parsed) ? parsed : [])
+      } catch {
+        setFavorites([])
+      }
+    }
 
     const age = localStorage.getItem('steamy-age')
     if (age === 'yes') setAgeConfirmed(true)
 
     const savedLang = localStorage.getItem('steamy-lang')
-    if (savedLang) setLang(savedLang)
+    if (savedLang === 'ru' || savedLang === 'en') setLang(savedLang)
 
     const savedTab = localStorage.getItem('steamy-tab')
     if (savedTab) setActiveTab(savedTab)
@@ -147,7 +166,7 @@ function App() {
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.close()
     } else {
-      window.location.href = 'about:blank'
+      setAgeLeft(true)
     }
   }
 
@@ -162,16 +181,32 @@ function App() {
   }
 
   const shareGame = (game) => {
-    const text = game.title + " — смотри в Steamy Store"
+    const text = game.title + " — " + t.shareText
     const url = "https://t.me/SteamyStore_bot?startapp=game_" + game.id
+
+    const markCopied = () => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    }
 
     if (window.Telegram && window.Telegram.WebApp) {
       const shareLink = "https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text)
       window.Telegram.WebApp.openTelegramLink(shareLink)
     } else {
-      navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
+      navigator.clipboard.writeText(url).then(markCopied).catch(() => {
+        try {
+          const el = document.createElement('textarea')
+          el.value = url
+          el.setAttribute('readonly', '')
+          el.style.position = 'fixed'
+          el.style.left = '-9999px'
+          document.body.appendChild(el)
+          el.select()
+          const ok = document.execCommand('copy')
+          document.body.removeChild(el)
+          if (ok) markCopied()
+        } catch {}
+      })
     }
   }
 
@@ -216,6 +251,18 @@ function App() {
     } else {
       window.open(url, '_blank')
     }
+  }
+
+  if (ageLeft) {
+    return (
+      <div className={`age-gate ${theme}`}>
+        <div className="age-card animate-in">
+          <div className="logo"><span className="fire">🔥</span> Steamy Store</div>
+          <h1>{t.ageTitle}</h1>
+          <p>{t.ageLeft}</p>
+        </div>
+      </div>
+    )
   }
 
   if (!ageConfirmed) {
@@ -293,7 +340,7 @@ function App() {
             </div>
             {activeTag && (
               <button className="clear-tag" onClick={() => setActiveTag(null)}>
-                Тег: {activeTag} ✕
+                {t.tag}: {activeTag} ✕
               </button>
             )}
           </div>
@@ -324,7 +371,7 @@ function App() {
               onClick={() => setSelectedGame(game)}
             >
               <div className="cover-wrap">
-                <img src={game.cover} alt={game.title} className="cover" />
+                <img src={game.cover} alt={game.title} className="cover" loading="lazy" onError={handleImageError} />
                 <button
                   className={`fav-btn ${favorites.includes(game.id) ? 'active' : ''}`}
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(game.id) }}
@@ -355,7 +402,7 @@ function App() {
       {selectedGame && (
         <div className="modal" onClick={() => setSelectedGame(null)}>
           <div className="modal-content animate-in" onClick={e => e.stopPropagation()}>
-            <img src={selectedGame.cover} alt="" className="modal-cover" />
+            <img src={selectedGame.cover} alt="" className="modal-cover" loading="lazy" onError={handleImageError} />
             <div className="modal-body">
               <h2>{selectedGame.title}</h2>
               <div className="meta">{selectedGame.developer} · {selectedGame.year} · ⭐ {selectedGame.rating}</div>
@@ -378,7 +425,7 @@ function App() {
                   <div className="screenshots-title">{t.screenshots}</div>
                   <div className="screenshots-row">
                     {selectedGame.screenshots.map((src, i) => (
-                      <img key={i} src={src} alt="" className="screenshot" />
+                      <img key={i} src={src} alt="" className="screenshot" loading="lazy" onError={handleImageError} />
                     ))}
                   </div>
                 </div>
