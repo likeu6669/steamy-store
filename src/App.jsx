@@ -528,8 +528,8 @@ function App() {
     if (activeTag) {
       list = list.filter(g => g.tags.includes(activeTag))
     }
-    if (search.trim()) {
-      const q = search.toLowerCase()
+    const q = search.trim().toLowerCase()
+    if (q) {
       list = list.filter(g =>
         g.title.toLowerCase().includes(q) ||
         g.developer.toLowerCase().includes(q) ||
@@ -706,8 +706,6 @@ function App() {
                   <option value="any">{t.any}</option>
                   <option value="PC">PC</option>
                   <option value="Android">Android</option>
-                  <option value="Mac">Mac</option>
-                  <option value="Web">Web</option>
                 </select>
               </div>
               <div className="filter-row">
@@ -774,16 +772,7 @@ function App() {
               key={game.id}
               className="card animate-in"
               style={{ animationDelay: `${i * 0.05}s` }}
-              role="button"
-              tabIndex={0}
-              aria-label={game.title}
               onClick={() => setSelectedGame(game)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  setSelectedGame(game)
-                }
-              }}
             >
               <div className="cover-wrap">
                 <img src={game.cover} alt={game.title} className="cover" loading="lazy" onError={handleImageError} />
@@ -797,14 +786,20 @@ function App() {
                 </button>
               </div>
               <div className="card-info">
-                <div className="title">{game.title}</div>
+                <button
+                  type="button"
+                  className="title title-btn"
+                  onClick={(e) => { e.stopPropagation(); setSelectedGame(game) }}
+                >
+                  {game.title}
+                </button>
                 <div className="meta">{game.year} · {game.developer}</div>
                 <div className="tags">
                   {game.tags.slice(0, 3).map(tag => (
                     <button
                       type="button"
                       key={tag}
-                      onClick={(e) => { e.stopPropagation(); setActiveTag(tag); setShowFilters(true) }}
+                      onClick={(e) => { e.stopPropagation(); setActiveTag(tag); setHeaderCompact(false) }}
                     >
                       {tag}
                     </button>
@@ -837,7 +832,7 @@ function App() {
                   <button
                     type="button"
                     key={tag}
-                    onClick={() => { setActiveTag(tag); setSelectedGame(null); setShowFilters(true) }}
+                    onClick={() => { setActiveTag(tag); setSelectedGame(null); setHeaderCompact(false) }}
                   >
                     {tag}
                   </button>
